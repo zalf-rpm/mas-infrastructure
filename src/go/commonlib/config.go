@@ -6,6 +6,10 @@ import (
 	toml "github.com/pelletier/go-toml"
 )
 
+type ConfigConfigurator interface {
+	GetDefaultConfig() *Config
+}
+
 type Config struct {
 	TLS struct {
 		Use      bool     `toml:"use_tls"`
@@ -13,12 +17,19 @@ type Config struct {
 		CertName string   `toml:"cert_name"`
 		RootCAs  []string `toml:"root_cas"`
 	}
+	Data map[string]interface{}
 }
 
-func ReadConfig(configPath string) (*Config, error) {
+func ReadConfig(configPath string, conf ConfigConfigurator) (*Config, error) {
+	var config *Config
+	if conf != nil {
+		config = conf.GetDefaultConfig()
+	} else {
+		config = DefaultConfig()
+	}
 
 	if configPath == "" {
-		return DefaultConfig(), nil
+		return config, nil
 	}
 	_, err := os.Stat(configPath)
 	if err != nil {
@@ -28,7 +39,6 @@ func ReadConfig(configPath string) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
-	config := DefaultConfig()
 
 	// file data should be in toml format
 	err = toml.Unmarshal(fileData, config)
@@ -65,16 +75,30 @@ func DefaultConfig() *Config {
 			CertName: "config/server.crt",
 			RootCAs:  []string{"config/ca.crt"},
 		},
+
+		Data: map[string]interface{}{
+			"Service": map[string]interface{}{
+				"Name":        "service1",
+				"Id":          "service1Id",
+				"Description": "a service1 Description",
+				"Host":        "localhost",
+				"Port":        0,
+			},
+		},
 	}
 }
 
-func ConfigGen(configPath string) (*Config, error) {
+func ConfigGen(configPath string, conf ConfigConfigurator) (*Config, error) {
 	// read the config file, if it exists
-	config, err := ReadConfig(configPath)
+	config, err := ReadConfig(configPath, conf)
 	if err != nil {
 		if os.IsNotExist(err) {
 			// create a default config file, if it does not exist and the flag is set
-			config = DefaultConfig()
+			if conf != nil {
+				config = conf.GetDefaultConfig()
+			} else {
+				config = DefaultConfig()
+			}
 			err = config.WriteConfig(configPath)
 			if err != nil {
 				return nil, err

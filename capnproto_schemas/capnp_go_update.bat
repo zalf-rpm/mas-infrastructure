@@ -1,5 +1,5 @@
 
-go install capnproto.org/go/capnp/v3/capnpc-go@latest
+go install capnproto.org/go/capnp/v3/capnpc-go@v3.0.1-alpha.2
 rem current dir
 set "WORKDIR=%~dp0"
 echo %WORKDIR%
@@ -11,8 +11,6 @@ go get -u capnproto.org/go/capnp/v3/
 cd %WORKDIR%/gen/go/cluster
 go get -u capnproto.org/go/capnp/v3/
 cd %WORKDIR%/gen/go/common
-go get -u capnproto.org/go/capnp/v3/
-cd %WORKDIR%/gen/go/common_date
 go get -u capnproto.org/go/capnp/v3/
 cd %WORKDIR%/gen/go/config
 go get -u capnproto.org/go/capnp/v3/
@@ -51,34 +49,7 @@ go get -u capnproto.org/go/capnp/v3/
 
 cd %WORKDIR%
 
-capnp compile -I. -ogo:./gen/go/test a.capnp
-capnp compile -I. -ogo:./gen/go/climate climate.capnp
-capnp compile -I. -ogo:./gen/go/cluster cluster_admin_service.capnp
-capnp compile -I. -ogo:./gen/go/common common.capnp
-capnp compile -I. -ogo:./gen/go/config config.capnp
-capnp compile -I. -ogo:./gen/go/crop crop.capnp
-capnp compile -I. -ogo:./gen/go/common_date date.capnp
-capnp compile -I. -ogo:./gen/go/fbp fbp.capnp
-
-capnp compile -I. -ogo:./gen/go/geo geo.capnp
-capnp compile -I. -ogo:./gen/go/grid grid.capnp
-capnp compile -I. -ogo:./gen/go/jobs jobs.capnp
-capnp compile -I. -ogo:./gen/go/management management.capnp
-capnp compile -I. -ogo:./gen/go/model model.capnp
-capnp compile -I. -ogo:./gen/go/persistence persistence.capnp
-capnp compile -I. -ogo:./gen/go/registry registry.capnp
-capnp compile -I. -ogo:./gen/go/service service.capnp
-capnp compile -I. -ogo:./gen/go/soil soil.capnp
-capnp compile -I. -ogo:./gen/go/storage storage.capnp
-
-capnp compile -I. -ogo:./gen/go model/weberest/web-berest-data-import.capnp
-capnp compile -I. -ogo:./gen/go model/yieldstat/yieldstat.capnp
-
-capnp compile -I. -ogo:./gen/go model/monica/monica_management.capnp
-capnp compile -I. -ogo:./gen/go model/monica/monica_params.capnp
-capnp compile -I. -ogo:./gen/go model/monica/monica_state.capnp
-capnp compile -I. -ogo:./gen/go model/monica/soil_params.capnp
-
+call capnp_compile_all.bat go
 
 cd %WORKDIR%/gen/go/test
 go mod tidy
@@ -87,8 +58,6 @@ go mod tidy
 cd %WORKDIR%/gen/go/cluster
 go mod tidy
 cd %WORKDIR%/gen/go/common
-go mod tidy
-cd %WORKDIR%/gen/go/common_date
 go mod tidy
 cd %WORKDIR%/gen/go/config
 go mod tidy

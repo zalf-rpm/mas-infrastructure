@@ -16,11 +16,11 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 #include "date.h"
 
+#include <algorithms.h>
 #include <sstream>
 #include <cmath>
 #include <cassert>
 #include <iostream>
-#include <cstdlib>
 
 using namespace Tools;
 using namespace std;
@@ -480,7 +480,40 @@ Date Date::toAbsoluteDate(uint16_t absYear, bool ignoreDeltaYears) const {
               false, useLeapYears());
 }
 
-//------------------------------------------------------------------------------
+DayLengths Tools::dayLengths(double latitude, double julianDay) {
+  DayLengths dls;
+
+  // Calculation of declination - old DEC
+  double declination = -23.4 * cos(2.0 * M_PI * ((julianDay + 10.0) / 365.0));
+
+  //old SINLD
+  double declSin = sin(declination * M_PI / 180.0) * sin(latitude * M_PI / 180.0);
+  //old COSLD
+  double declCos = cos(declination * M_PI / 180.0) * cos(latitude * M_PI / 180.0);
+
+  // Calculation of the atmospheric day lenght -> old DL
+  double astroDayLength = declSin / declCos;
+  astroDayLength = bound(-1.0, astroDayLength, 1.0); // The argument of asin must be in the range of -1 to 1
+  dls.astronomicDayLenght = 12.0 * (M_PI + 2.0 * asin(astroDayLength)) / M_PI;
+
+  // Calculation of the effective day length = old DLE
+  double edlHelper = (-sin(8.0 * M_PI / 180.0) + declSin) / declCos;
+
+  if ((edlHelper < -1.0) || (edlHelper > 1.0)) {
+    dls.effectiveDayLength = 0.01;
+  } else {
+    dls.effectiveDayLength = 12.0 * (M_PI + 2.0 * asin(edlHelper)) / M_PI;
+  }
+  /*edlHelper = bound(-1.0, edlHelper, 1.0);
+  dls.effectiveDayLength = 12.0 * (M_PI + 2.0 * asin(edlHelper)) / PI;*/
+
+  // old DLP
+  double photoDayLength = (-sin(-6.0 * M_PI / 180.0) + declSin) / declCos;
+  photoDayLength = bound(-1.0, photoDayLength, 1.0); // The argument of asin must be in the range of -1 to 1
+  dls.photoperiodicDaylength = 12.0 * (M_PI + 2.0 * asin(photoDayLength)) / M_PI;
+
+  return dls;
+}
 
 //! function testing the date class
 void Tools::testDate() {

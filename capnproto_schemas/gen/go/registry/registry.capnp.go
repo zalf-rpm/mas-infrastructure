@@ -406,7 +406,7 @@ func (c Admin_registry) AllocResults() (Admin_registry_Results, error) {
 // Admin_List is a list of Admin.
 type Admin_List = capnp.CapList[Admin]
 
-// NewAdmin creates a new list of Admin.
+// NewAdmin_List creates a new list of Admin.
 func NewAdmin_List(s *capnp.Segment, sz int32) (Admin_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[Admin](l), err
@@ -1581,7 +1581,7 @@ func (c Registry_entries) AllocResults() (Registry_entries_Results, error) {
 // Registry_List is a list of Registry.
 type Registry_List = capnp.CapList[Registry]
 
-// NewRegistry creates a new list of Registry.
+// NewRegistry_List creates a new list of Registry.
 func NewRegistry_List(s *capnp.Segment, sz int32) (Registry_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[Registry](l), err
@@ -2302,7 +2302,7 @@ func (c Registrar_register) AllocResults() (Registrar_register_Results, error) {
 // Registrar_List is a list of Registrar.
 type Registrar_List = capnp.CapList[Registrar]
 
-// NewRegistrar creates a new list of Registrar.
+// NewRegistrar_List creates a new list of Registrar.
 func NewRegistrar_List(s *capnp.Segment, sz int32) (Registrar_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[Registrar](l), err
@@ -2724,7 +2724,7 @@ func (c Registrar_Unregister_unregister) AllocResults() (Registrar_Unregister_un
 // Registrar_Unregister_List is a list of Registrar_Unregister.
 type Registrar_Unregister_List = capnp.CapList[Registrar_Unregister]
 
-// NewRegistrar_Unregister creates a new list of Registrar_Unregister.
+// NewRegistrar_Unregister_List creates a new list of Registrar_Unregister.
 func NewRegistrar_Unregister_List(s *capnp.Segment, sz int32) (Registrar_Unregister_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[Registrar_Unregister](l), err

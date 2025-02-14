@@ -720,6 +720,297 @@ func (f SturdyRef_Token_Future) Struct() (SturdyRef_Token, error) {
 	return SturdyRef_Token(p.Struct()), err
 }
 
+type Heartbeat capnp.Client
+
+// Heartbeat_TypeID is the unique identifier for the type Heartbeat.
+const Heartbeat_TypeID = 0x9fb3bdfad147ca3a
+
+func (c Heartbeat) Beat(ctx context.Context, params func(Heartbeat_beat_Params) error) (Heartbeat_beat_Results_Future, capnp.ReleaseFunc) {
+
+	s := capnp.Send{
+		Method: capnp.Method{
+			InterfaceID:   0x9fb3bdfad147ca3a,
+			MethodID:      0,
+			InterfaceName: "persistence.capnp:Heartbeat",
+			MethodName:    "beat",
+		},
+	}
+	if params != nil {
+		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Heartbeat_beat_Params(s)) }
+	}
+
+	ans, release := capnp.Client(c).SendCall(ctx, s)
+	return Heartbeat_beat_Results_Future{Future: ans.Future()}, release
+
+}
+
+func (c Heartbeat) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
+}
+
+// String returns a string that identifies this capability for debugging
+// purposes.  Its format should not be depended on: in particular, it
+// should not be used to compare clients.  Use IsSame to compare clients
+// for equality.
+func (c Heartbeat) String() string {
+	return "Heartbeat(" + capnp.Client(c).String() + ")"
+}
+
+// AddRef creates a new Client that refers to the same capability as c.
+// If c is nil or has resolved to null, then AddRef returns nil.
+func (c Heartbeat) AddRef() Heartbeat {
+	return Heartbeat(capnp.Client(c).AddRef())
+}
+
+// Release releases a capability reference.  If this is the last
+// reference to the capability, then the underlying resources associated
+// with the capability will be released.
+//
+// Release will panic if c has already been released, but not if c is
+// nil or resolved to null.
+func (c Heartbeat) Release() {
+	capnp.Client(c).Release()
+}
+
+// Resolve blocks until the capability is fully resolved or the Context
+// expires.
+func (c Heartbeat) Resolve(ctx context.Context) error {
+	return capnp.Client(c).Resolve(ctx)
+}
+
+func (c Heartbeat) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Client(c).EncodeAsPtr(seg)
+}
+
+func (Heartbeat) DecodeFromPtr(p capnp.Ptr) Heartbeat {
+	return Heartbeat(capnp.Client{}.DecodeFromPtr(p))
+}
+
+// IsValid reports whether c is a valid reference to a capability.
+// A reference is invalid if it is nil, has resolved to null, or has
+// been released.
+func (c Heartbeat) IsValid() bool {
+	return capnp.Client(c).IsValid()
+}
+
+// IsSame reports whether c and other refer to a capability created by the
+// same call to NewClient.  This can return false negatives if c or other
+// are not fully resolved: use Resolve if this is an issue.  If either
+// c or other are released, then IsSame panics.
+func (c Heartbeat) IsSame(other Heartbeat) bool {
+	return capnp.Client(c).IsSame(capnp.Client(other))
+}
+
+// Update the flowcontrol.FlowLimiter used to manage flow control for
+// this client. This affects all future calls, but not calls already
+// waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
+// which is also the default.
+func (c Heartbeat) SetFlowLimiter(lim fc.FlowLimiter) {
+	capnp.Client(c).SetFlowLimiter(lim)
+}
+
+// Get the current flowcontrol.FlowLimiter used to manage flow control
+// for this client.
+func (c Heartbeat) GetFlowLimiter() fc.FlowLimiter {
+	return capnp.Client(c).GetFlowLimiter()
+}
+
+// A Heartbeat_Server is a Heartbeat with a local implementation.
+type Heartbeat_Server interface {
+	Beat(context.Context, Heartbeat_beat) error
+}
+
+// Heartbeat_NewServer creates a new Server from an implementation of Heartbeat_Server.
+func Heartbeat_NewServer(s Heartbeat_Server) *server.Server {
+	c, _ := s.(server.Shutdowner)
+	return server.New(Heartbeat_Methods(nil, s), s, c)
+}
+
+// Heartbeat_ServerToClient creates a new Client from an implementation of Heartbeat_Server.
+// The caller is responsible for calling Release on the returned Client.
+func Heartbeat_ServerToClient(s Heartbeat_Server) Heartbeat {
+	return Heartbeat(capnp.NewClient(Heartbeat_NewServer(s)))
+}
+
+// Heartbeat_Methods appends Methods to a slice that invoke the methods on s.
+// This can be used to create a more complicated Server.
+func Heartbeat_Methods(methods []server.Method, s Heartbeat_Server) []server.Method {
+	if cap(methods) == 0 {
+		methods = make([]server.Method, 0, 1)
+	}
+
+	methods = append(methods, server.Method{
+		Method: capnp.Method{
+			InterfaceID:   0x9fb3bdfad147ca3a,
+			MethodID:      0,
+			InterfaceName: "persistence.capnp:Heartbeat",
+			MethodName:    "beat",
+		},
+		Impl: func(ctx context.Context, call *server.Call) error {
+			return s.Beat(ctx, Heartbeat_beat{call})
+		},
+	})
+
+	return methods
+}
+
+// Heartbeat_beat holds the state for a server call to Heartbeat.beat.
+// See server.Call for documentation.
+type Heartbeat_beat struct {
+	*server.Call
+}
+
+// Args returns the call's arguments.
+func (c Heartbeat_beat) Args() Heartbeat_beat_Params {
+	return Heartbeat_beat_Params(c.Call.Args())
+}
+
+// AllocResults allocates the results struct.
+func (c Heartbeat_beat) AllocResults() (Heartbeat_beat_Results, error) {
+	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 0})
+	return Heartbeat_beat_Results(r), err
+}
+
+// Heartbeat_List is a list of Heartbeat.
+type Heartbeat_List = capnp.CapList[Heartbeat]
+
+// NewHeartbeat_List creates a new list of Heartbeat.
+func NewHeartbeat_List(s *capnp.Segment, sz int32) (Heartbeat_List, error) {
+	l, err := capnp.NewPointerList(s, sz)
+	return capnp.CapList[Heartbeat](l), err
+}
+
+type Heartbeat_beat_Params capnp.Struct
+
+// Heartbeat_beat_Params_TypeID is the unique identifier for the type Heartbeat_beat_Params.
+const Heartbeat_beat_Params_TypeID = 0x8ab68adabfa134ca
+
+func NewHeartbeat_beat_Params(s *capnp.Segment) (Heartbeat_beat_Params, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
+	return Heartbeat_beat_Params(st), err
+}
+
+func NewRootHeartbeat_beat_Params(s *capnp.Segment) (Heartbeat_beat_Params, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
+	return Heartbeat_beat_Params(st), err
+}
+
+func ReadRootHeartbeat_beat_Params(msg *capnp.Message) (Heartbeat_beat_Params, error) {
+	root, err := msg.Root()
+	return Heartbeat_beat_Params(root.Struct()), err
+}
+
+func (s Heartbeat_beat_Params) String() string {
+	str, _ := text.Marshal(0x8ab68adabfa134ca, capnp.Struct(s))
+	return str
+}
+
+func (s Heartbeat_beat_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Heartbeat_beat_Params) DecodeFromPtr(p capnp.Ptr) Heartbeat_beat_Params {
+	return Heartbeat_beat_Params(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Heartbeat_beat_Params) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Heartbeat_beat_Params) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Heartbeat_beat_Params) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Heartbeat_beat_Params) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+
+// Heartbeat_beat_Params_List is a list of Heartbeat_beat_Params.
+type Heartbeat_beat_Params_List = capnp.StructList[Heartbeat_beat_Params]
+
+// NewHeartbeat_beat_Params creates a new list of Heartbeat_beat_Params.
+func NewHeartbeat_beat_Params_List(s *capnp.Segment, sz int32) (Heartbeat_beat_Params_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
+	return capnp.StructList[Heartbeat_beat_Params](l), err
+}
+
+// Heartbeat_beat_Params_Future is a wrapper for a Heartbeat_beat_Params promised by a client call.
+type Heartbeat_beat_Params_Future struct{ *capnp.Future }
+
+func (f Heartbeat_beat_Params_Future) Struct() (Heartbeat_beat_Params, error) {
+	p, err := f.Future.Ptr()
+	return Heartbeat_beat_Params(p.Struct()), err
+}
+
+type Heartbeat_beat_Results capnp.Struct
+
+// Heartbeat_beat_Results_TypeID is the unique identifier for the type Heartbeat_beat_Results.
+const Heartbeat_beat_Results_TypeID = 0xf43682c2a6e815f8
+
+func NewHeartbeat_beat_Results(s *capnp.Segment) (Heartbeat_beat_Results, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
+	return Heartbeat_beat_Results(st), err
+}
+
+func NewRootHeartbeat_beat_Results(s *capnp.Segment) (Heartbeat_beat_Results, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
+	return Heartbeat_beat_Results(st), err
+}
+
+func ReadRootHeartbeat_beat_Results(msg *capnp.Message) (Heartbeat_beat_Results, error) {
+	root, err := msg.Root()
+	return Heartbeat_beat_Results(root.Struct()), err
+}
+
+func (s Heartbeat_beat_Results) String() string {
+	str, _ := text.Marshal(0xf43682c2a6e815f8, capnp.Struct(s))
+	return str
+}
+
+func (s Heartbeat_beat_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Heartbeat_beat_Results) DecodeFromPtr(p capnp.Ptr) Heartbeat_beat_Results {
+	return Heartbeat_beat_Results(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Heartbeat_beat_Results) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Heartbeat_beat_Results) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Heartbeat_beat_Results) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Heartbeat_beat_Results) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+
+// Heartbeat_beat_Results_List is a list of Heartbeat_beat_Results.
+type Heartbeat_beat_Results_List = capnp.StructList[Heartbeat_beat_Results]
+
+// NewHeartbeat_beat_Results creates a new list of Heartbeat_beat_Results.
+func NewHeartbeat_beat_Results_List(s *capnp.Segment, sz int32) (Heartbeat_beat_Results_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
+	return capnp.StructList[Heartbeat_beat_Results](l), err
+}
+
+// Heartbeat_beat_Results_Future is a wrapper for a Heartbeat_beat_Results promised by a client call.
+type Heartbeat_beat_Results_Future struct{ *capnp.Future }
+
+func (f Heartbeat_beat_Results_Future) Struct() (Heartbeat_beat_Results, error) {
+	p, err := f.Future.Ptr()
+	return Heartbeat_beat_Results(p.Struct()), err
+}
+
 type Persistent capnp.Client
 
 // Persistent_TypeID is the unique identifier for the type Persistent.
@@ -875,7 +1166,7 @@ func (c Persistent_save) AllocResults() (Persistent_SaveResults, error) {
 // Persistent_List is a list of Persistent.
 type Persistent_List = capnp.CapList[Persistent]
 
-// NewPersistent creates a new list of Persistent.
+// NewPersistent_List creates a new list of Persistent.
 func NewPersistent_List(s *capnp.Segment, sz int32) (Persistent_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[Persistent](l), err
@@ -1245,7 +1536,7 @@ func (c Persistent_ReleaseSturdyRef_releaseSR) AllocResults() (Persistent_Releas
 // Persistent_ReleaseSturdyRef_List is a list of Persistent_ReleaseSturdyRef.
 type Persistent_ReleaseSturdyRef_List = capnp.CapList[Persistent_ReleaseSturdyRef]
 
-// NewPersistent_ReleaseSturdyRef creates a new list of Persistent_ReleaseSturdyRef.
+// NewPersistent_ReleaseSturdyRef_List creates a new list of Persistent_ReleaseSturdyRef.
 func NewPersistent_ReleaseSturdyRef_List(s *capnp.Segment, sz int32) (Persistent_ReleaseSturdyRef_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[Persistent_ReleaseSturdyRef](l), err
@@ -1543,7 +1834,7 @@ func (c Restorer_restore) AllocResults() (Restorer_restore_Results, error) {
 // Restorer_List is a list of Restorer.
 type Restorer_List = capnp.CapList[Restorer]
 
-// NewRestorer creates a new list of Restorer.
+// NewRestorer_List creates a new list of Restorer.
 func NewRestorer_List(s *capnp.Segment, sz int32) (Restorer_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[Restorer](l), err
@@ -1975,7 +2266,7 @@ func (c HostPortResolver_ResolveIdent) AllocResults() (HostPortResolver_ResolveI
 // HostPortResolver_List is a list of HostPortResolver.
 type HostPortResolver_List = capnp.CapList[HostPortResolver]
 
-// NewHostPortResolver creates a new list of HostPortResolver.
+// NewHostPortResolver_List creates a new list of HostPortResolver.
 func NewHostPortResolver_List(s *capnp.Segment, sz int32) (HostPortResolver_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[HostPortResolver](l), err
@@ -2136,301 +2427,10 @@ func (c HostPortResolver_Registrar_register) AllocResults() (HostPortResolver_Re
 // HostPortResolver_Registrar_List is a list of HostPortResolver_Registrar.
 type HostPortResolver_Registrar_List = capnp.CapList[HostPortResolver_Registrar]
 
-// NewHostPortResolver_Registrar creates a new list of HostPortResolver_Registrar.
+// NewHostPortResolver_Registrar_List creates a new list of HostPortResolver_Registrar.
 func NewHostPortResolver_Registrar_List(s *capnp.Segment, sz int32) (HostPortResolver_Registrar_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[HostPortResolver_Registrar](l), err
-}
-
-type HostPortResolver_Registrar_Heartbeat capnp.Client
-
-// HostPortResolver_Registrar_Heartbeat_TypeID is the unique identifier for the type HostPortResolver_Registrar_Heartbeat.
-const HostPortResolver_Registrar_Heartbeat_TypeID = 0x87de92d2d68df26f
-
-func (c HostPortResolver_Registrar_Heartbeat) Beat(ctx context.Context, params func(HostPortResolver_Registrar_Heartbeat_beat_Params) error) (HostPortResolver_Registrar_Heartbeat_beat_Results_Future, capnp.ReleaseFunc) {
-
-	s := capnp.Send{
-		Method: capnp.Method{
-			InterfaceID:   0x87de92d2d68df26f,
-			MethodID:      0,
-			InterfaceName: "persistence.capnp:HostPortResolver.Registrar.Heartbeat",
-			MethodName:    "beat",
-		},
-	}
-	if params != nil {
-		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(HostPortResolver_Registrar_Heartbeat_beat_Params(s)) }
-	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
-	return HostPortResolver_Registrar_Heartbeat_beat_Results_Future{Future: ans.Future()}, release
-
-}
-
-func (c HostPortResolver_Registrar_Heartbeat) WaitStreaming() error {
-	return capnp.Client(c).WaitStreaming()
-}
-
-// String returns a string that identifies this capability for debugging
-// purposes.  Its format should not be depended on: in particular, it
-// should not be used to compare clients.  Use IsSame to compare clients
-// for equality.
-func (c HostPortResolver_Registrar_Heartbeat) String() string {
-	return "HostPortResolver_Registrar_Heartbeat(" + capnp.Client(c).String() + ")"
-}
-
-// AddRef creates a new Client that refers to the same capability as c.
-// If c is nil or has resolved to null, then AddRef returns nil.
-func (c HostPortResolver_Registrar_Heartbeat) AddRef() HostPortResolver_Registrar_Heartbeat {
-	return HostPortResolver_Registrar_Heartbeat(capnp.Client(c).AddRef())
-}
-
-// Release releases a capability reference.  If this is the last
-// reference to the capability, then the underlying resources associated
-// with the capability will be released.
-//
-// Release will panic if c has already been released, but not if c is
-// nil or resolved to null.
-func (c HostPortResolver_Registrar_Heartbeat) Release() {
-	capnp.Client(c).Release()
-}
-
-// Resolve blocks until the capability is fully resolved or the Context
-// expires.
-func (c HostPortResolver_Registrar_Heartbeat) Resolve(ctx context.Context) error {
-	return capnp.Client(c).Resolve(ctx)
-}
-
-func (c HostPortResolver_Registrar_Heartbeat) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Client(c).EncodeAsPtr(seg)
-}
-
-func (HostPortResolver_Registrar_Heartbeat) DecodeFromPtr(p capnp.Ptr) HostPortResolver_Registrar_Heartbeat {
-	return HostPortResolver_Registrar_Heartbeat(capnp.Client{}.DecodeFromPtr(p))
-}
-
-// IsValid reports whether c is a valid reference to a capability.
-// A reference is invalid if it is nil, has resolved to null, or has
-// been released.
-func (c HostPortResolver_Registrar_Heartbeat) IsValid() bool {
-	return capnp.Client(c).IsValid()
-}
-
-// IsSame reports whether c and other refer to a capability created by the
-// same call to NewClient.  This can return false negatives if c or other
-// are not fully resolved: use Resolve if this is an issue.  If either
-// c or other are released, then IsSame panics.
-func (c HostPortResolver_Registrar_Heartbeat) IsSame(other HostPortResolver_Registrar_Heartbeat) bool {
-	return capnp.Client(c).IsSame(capnp.Client(other))
-}
-
-// Update the flowcontrol.FlowLimiter used to manage flow control for
-// this client. This affects all future calls, but not calls already
-// waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
-// which is also the default.
-func (c HostPortResolver_Registrar_Heartbeat) SetFlowLimiter(lim fc.FlowLimiter) {
-	capnp.Client(c).SetFlowLimiter(lim)
-}
-
-// Get the current flowcontrol.FlowLimiter used to manage flow control
-// for this client.
-func (c HostPortResolver_Registrar_Heartbeat) GetFlowLimiter() fc.FlowLimiter {
-	return capnp.Client(c).GetFlowLimiter()
-}
-
-// A HostPortResolver_Registrar_Heartbeat_Server is a HostPortResolver_Registrar_Heartbeat with a local implementation.
-type HostPortResolver_Registrar_Heartbeat_Server interface {
-	Beat(context.Context, HostPortResolver_Registrar_Heartbeat_beat) error
-}
-
-// HostPortResolver_Registrar_Heartbeat_NewServer creates a new Server from an implementation of HostPortResolver_Registrar_Heartbeat_Server.
-func HostPortResolver_Registrar_Heartbeat_NewServer(s HostPortResolver_Registrar_Heartbeat_Server) *server.Server {
-	c, _ := s.(server.Shutdowner)
-	return server.New(HostPortResolver_Registrar_Heartbeat_Methods(nil, s), s, c)
-}
-
-// HostPortResolver_Registrar_Heartbeat_ServerToClient creates a new Client from an implementation of HostPortResolver_Registrar_Heartbeat_Server.
-// The caller is responsible for calling Release on the returned Client.
-func HostPortResolver_Registrar_Heartbeat_ServerToClient(s HostPortResolver_Registrar_Heartbeat_Server) HostPortResolver_Registrar_Heartbeat {
-	return HostPortResolver_Registrar_Heartbeat(capnp.NewClient(HostPortResolver_Registrar_Heartbeat_NewServer(s)))
-}
-
-// HostPortResolver_Registrar_Heartbeat_Methods appends Methods to a slice that invoke the methods on s.
-// This can be used to create a more complicated Server.
-func HostPortResolver_Registrar_Heartbeat_Methods(methods []server.Method, s HostPortResolver_Registrar_Heartbeat_Server) []server.Method {
-	if cap(methods) == 0 {
-		methods = make([]server.Method, 0, 1)
-	}
-
-	methods = append(methods, server.Method{
-		Method: capnp.Method{
-			InterfaceID:   0x87de92d2d68df26f,
-			MethodID:      0,
-			InterfaceName: "persistence.capnp:HostPortResolver.Registrar.Heartbeat",
-			MethodName:    "beat",
-		},
-		Impl: func(ctx context.Context, call *server.Call) error {
-			return s.Beat(ctx, HostPortResolver_Registrar_Heartbeat_beat{call})
-		},
-	})
-
-	return methods
-}
-
-// HostPortResolver_Registrar_Heartbeat_beat holds the state for a server call to HostPortResolver_Registrar_Heartbeat.beat.
-// See server.Call for documentation.
-type HostPortResolver_Registrar_Heartbeat_beat struct {
-	*server.Call
-}
-
-// Args returns the call's arguments.
-func (c HostPortResolver_Registrar_Heartbeat_beat) Args() HostPortResolver_Registrar_Heartbeat_beat_Params {
-	return HostPortResolver_Registrar_Heartbeat_beat_Params(c.Call.Args())
-}
-
-// AllocResults allocates the results struct.
-func (c HostPortResolver_Registrar_Heartbeat_beat) AllocResults() (HostPortResolver_Registrar_Heartbeat_beat_Results, error) {
-	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return HostPortResolver_Registrar_Heartbeat_beat_Results(r), err
-}
-
-// HostPortResolver_Registrar_Heartbeat_List is a list of HostPortResolver_Registrar_Heartbeat.
-type HostPortResolver_Registrar_Heartbeat_List = capnp.CapList[HostPortResolver_Registrar_Heartbeat]
-
-// NewHostPortResolver_Registrar_Heartbeat creates a new list of HostPortResolver_Registrar_Heartbeat.
-func NewHostPortResolver_Registrar_Heartbeat_List(s *capnp.Segment, sz int32) (HostPortResolver_Registrar_Heartbeat_List, error) {
-	l, err := capnp.NewPointerList(s, sz)
-	return capnp.CapList[HostPortResolver_Registrar_Heartbeat](l), err
-}
-
-type HostPortResolver_Registrar_Heartbeat_beat_Params capnp.Struct
-
-// HostPortResolver_Registrar_Heartbeat_beat_Params_TypeID is the unique identifier for the type HostPortResolver_Registrar_Heartbeat_beat_Params.
-const HostPortResolver_Registrar_Heartbeat_beat_Params_TypeID = 0xebff70497e0ba555
-
-func NewHostPortResolver_Registrar_Heartbeat_beat_Params(s *capnp.Segment) (HostPortResolver_Registrar_Heartbeat_beat_Params, error) {
-	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return HostPortResolver_Registrar_Heartbeat_beat_Params(st), err
-}
-
-func NewRootHostPortResolver_Registrar_Heartbeat_beat_Params(s *capnp.Segment) (HostPortResolver_Registrar_Heartbeat_beat_Params, error) {
-	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return HostPortResolver_Registrar_Heartbeat_beat_Params(st), err
-}
-
-func ReadRootHostPortResolver_Registrar_Heartbeat_beat_Params(msg *capnp.Message) (HostPortResolver_Registrar_Heartbeat_beat_Params, error) {
-	root, err := msg.Root()
-	return HostPortResolver_Registrar_Heartbeat_beat_Params(root.Struct()), err
-}
-
-func (s HostPortResolver_Registrar_Heartbeat_beat_Params) String() string {
-	str, _ := text.Marshal(0xebff70497e0ba555, capnp.Struct(s))
-	return str
-}
-
-func (s HostPortResolver_Registrar_Heartbeat_beat_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (HostPortResolver_Registrar_Heartbeat_beat_Params) DecodeFromPtr(p capnp.Ptr) HostPortResolver_Registrar_Heartbeat_beat_Params {
-	return HostPortResolver_Registrar_Heartbeat_beat_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s HostPortResolver_Registrar_Heartbeat_beat_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s HostPortResolver_Registrar_Heartbeat_beat_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s HostPortResolver_Registrar_Heartbeat_beat_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s HostPortResolver_Registrar_Heartbeat_beat_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-
-// HostPortResolver_Registrar_Heartbeat_beat_Params_List is a list of HostPortResolver_Registrar_Heartbeat_beat_Params.
-type HostPortResolver_Registrar_Heartbeat_beat_Params_List = capnp.StructList[HostPortResolver_Registrar_Heartbeat_beat_Params]
-
-// NewHostPortResolver_Registrar_Heartbeat_beat_Params creates a new list of HostPortResolver_Registrar_Heartbeat_beat_Params.
-func NewHostPortResolver_Registrar_Heartbeat_beat_Params_List(s *capnp.Segment, sz int32) (HostPortResolver_Registrar_Heartbeat_beat_Params_List, error) {
-	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return capnp.StructList[HostPortResolver_Registrar_Heartbeat_beat_Params](l), err
-}
-
-// HostPortResolver_Registrar_Heartbeat_beat_Params_Future is a wrapper for a HostPortResolver_Registrar_Heartbeat_beat_Params promised by a client call.
-type HostPortResolver_Registrar_Heartbeat_beat_Params_Future struct{ *capnp.Future }
-
-func (f HostPortResolver_Registrar_Heartbeat_beat_Params_Future) Struct() (HostPortResolver_Registrar_Heartbeat_beat_Params, error) {
-	p, err := f.Future.Ptr()
-	return HostPortResolver_Registrar_Heartbeat_beat_Params(p.Struct()), err
-}
-
-type HostPortResolver_Registrar_Heartbeat_beat_Results capnp.Struct
-
-// HostPortResolver_Registrar_Heartbeat_beat_Results_TypeID is the unique identifier for the type HostPortResolver_Registrar_Heartbeat_beat_Results.
-const HostPortResolver_Registrar_Heartbeat_beat_Results_TypeID = 0x9510c22fa544a65e
-
-func NewHostPortResolver_Registrar_Heartbeat_beat_Results(s *capnp.Segment) (HostPortResolver_Registrar_Heartbeat_beat_Results, error) {
-	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return HostPortResolver_Registrar_Heartbeat_beat_Results(st), err
-}
-
-func NewRootHostPortResolver_Registrar_Heartbeat_beat_Results(s *capnp.Segment) (HostPortResolver_Registrar_Heartbeat_beat_Results, error) {
-	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return HostPortResolver_Registrar_Heartbeat_beat_Results(st), err
-}
-
-func ReadRootHostPortResolver_Registrar_Heartbeat_beat_Results(msg *capnp.Message) (HostPortResolver_Registrar_Heartbeat_beat_Results, error) {
-	root, err := msg.Root()
-	return HostPortResolver_Registrar_Heartbeat_beat_Results(root.Struct()), err
-}
-
-func (s HostPortResolver_Registrar_Heartbeat_beat_Results) String() string {
-	str, _ := text.Marshal(0x9510c22fa544a65e, capnp.Struct(s))
-	return str
-}
-
-func (s HostPortResolver_Registrar_Heartbeat_beat_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (HostPortResolver_Registrar_Heartbeat_beat_Results) DecodeFromPtr(p capnp.Ptr) HostPortResolver_Registrar_Heartbeat_beat_Results {
-	return HostPortResolver_Registrar_Heartbeat_beat_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s HostPortResolver_Registrar_Heartbeat_beat_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s HostPortResolver_Registrar_Heartbeat_beat_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s HostPortResolver_Registrar_Heartbeat_beat_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s HostPortResolver_Registrar_Heartbeat_beat_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-
-// HostPortResolver_Registrar_Heartbeat_beat_Results_List is a list of HostPortResolver_Registrar_Heartbeat_beat_Results.
-type HostPortResolver_Registrar_Heartbeat_beat_Results_List = capnp.StructList[HostPortResolver_Registrar_Heartbeat_beat_Results]
-
-// NewHostPortResolver_Registrar_Heartbeat_beat_Results creates a new list of HostPortResolver_Registrar_Heartbeat_beat_Results.
-func NewHostPortResolver_Registrar_Heartbeat_beat_Results_List(s *capnp.Segment, sz int32) (HostPortResolver_Registrar_Heartbeat_beat_Results_List, error) {
-	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return capnp.StructList[HostPortResolver_Registrar_Heartbeat_beat_Results](l), err
-}
-
-// HostPortResolver_Registrar_Heartbeat_beat_Results_Future is a wrapper for a HostPortResolver_Registrar_Heartbeat_beat_Results promised by a client call.
-type HostPortResolver_Registrar_Heartbeat_beat_Results_Future struct{ *capnp.Future }
-
-func (f HostPortResolver_Registrar_Heartbeat_beat_Results_Future) Struct() (HostPortResolver_Registrar_Heartbeat_beat_Results, error) {
-	p, err := f.Future.Ptr()
-	return HostPortResolver_Registrar_Heartbeat_beat_Results(p.Struct()), err
 }
 
 type HostPortResolver_Registrar_RegisterParams capnp.Struct
@@ -2606,16 +2606,16 @@ func (s HostPortResolver_Registrar_register_Results) Message() *capnp.Message {
 func (s HostPortResolver_Registrar_register_Results) Segment() *capnp.Segment {
 	return capnp.Struct(s).Segment()
 }
-func (s HostPortResolver_Registrar_register_Results) Heartbeat() HostPortResolver_Registrar_Heartbeat {
+func (s HostPortResolver_Registrar_register_Results) Heartbeat() Heartbeat {
 	p, _ := capnp.Struct(s).Ptr(0)
-	return HostPortResolver_Registrar_Heartbeat(p.Interface().Client())
+	return Heartbeat(p.Interface().Client())
 }
 
 func (s HostPortResolver_Registrar_register_Results) HasHeartbeat() bool {
 	return capnp.Struct(s).HasPtr(0)
 }
 
-func (s HostPortResolver_Registrar_register_Results) SetHeartbeat(v HostPortResolver_Registrar_Heartbeat) error {
+func (s HostPortResolver_Registrar_register_Results) SetHeartbeat(v Heartbeat) error {
 	if !v.IsValid() {
 		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
@@ -2648,8 +2648,8 @@ func (f HostPortResolver_Registrar_register_Results_Future) Struct() (HostPortRe
 	p, err := f.Future.Ptr()
 	return HostPortResolver_Registrar_register_Results(p.Struct()), err
 }
-func (p HostPortResolver_Registrar_register_Results_Future) Heartbeat() HostPortResolver_Registrar_Heartbeat {
-	return HostPortResolver_Registrar_Heartbeat(p.Future.Field(0, nil).Client())
+func (p HostPortResolver_Registrar_register_Results_Future) Heartbeat() Heartbeat {
+	return Heartbeat(p.Future.Field(0, nil).Client())
 }
 
 type HostPortResolver_ResolveIdent_Params capnp.Struct
@@ -2824,147 +2824,594 @@ func (f HostPortResolver_ResolveIdent_Results_Future) Struct() (HostPortResolver
 	return HostPortResolver_ResolveIdent_Results(p.Struct()), err
 }
 
-const schema_855efed3475f6b26 = "x\xda\x9cW\x7fl[W\x15>\xe7\xbdg?;\xb1" +
-	"k_\xdf\x94\xd1\xb0\xc8\x90\xa6t\x0d\x8d\xd7\xd4]\x0a" +
-	"\xd3\xaa6\x816MP\x85\xafC'\xd1\xa9]_\xec" +
-	"\x9b\xc6\x9b\x7f\xf5\xbd\xe7\xb4\x99&\xb2\x8a\xa1\x8dmQ" +
-	"\xd7\xa1M\x0c\x81\xbaI\x14\xb4I\xd3\xa6j\x9aTP" +
-	"\x85Z\x0d\x09\x98&\x91\xa22\xb5\x9b&\x18\xe2\x87\xc6" +
-	"\x10\xa2\xff\x00e\xec\xa1\xfb\xfc\x9e\xef\x8b\xe7\xa6\xed\xfe" +
-	"\xa9\xea{\xcf;\xe7\xdc\xef|\xe7;'\x9b^\xd1v" +
-	"h\xc3\xf1C1P\xd8\x93\xa1\xb0S\xbb\xb2\xf8\xbb\x0b" +
-	"O\xbd\xfb\x08\x90!\xd59\xfd\xe4\xaez\xe3_\xbf~" +
-	"\x05\x00\xb3k\xc2?E:\x1c\xd6\x01\xe8Px\x9c\xee" +
-	"\x15\xffs\xf6\xbc\xfb\xad\xbe\xf5\xb3\x95G\x81\xa4\xd0\xf9" +
-	"\xfc\xfd\xf7\x8e\xff\xf6\xa3\x03\xdf\x86\x90\"\xac\xb6\x85\xdf" +
-	"\xa3\x13\xe1\xf5\x00t\x7f\xf8\x08\xa0\x93\xcf\x9c\xfc\xd4\xb1" +
-	"D\xfd8\x90>\xd5\xe1o\x8c\xbc\xf3\xdc\xe5\x9f\x9c\x13" +
-	"\x9e\xcf\x86M\xa4K\xae\xe77\xc3\xe3\xb4O\x17\x9eK" +
-	"\x8f}\xe76m\xff\xe9\xe3\xc0zQu\xe2\xf7<w" +
-	"8|l\xfc\xbf\xb0\x1au\x04\xa0!\xfd\x0a \x8d\xea" +
-	"\xc2\xef\xd4_\x93\x03\x7f\xac\x0e}\x17X\x06\x11@\xd3" +
-	"\x01\xb2\\\xbf\x82\x80t^\xdf\x0e\xe8\x1c\xf8\xf1WN" +
-	"\xdd~>\xf94\x90\xad\xfe\xfd\xb3z\xbf\x02\x9asW" +
-	"\xe6\xd2\xfa\x87?\xf7\xdaI )U\xa6\x0fHO\xe8" +
-	"\x97\xe9\x0f\xf5[\x00\xe8\x0b\xfa8]r3Z\xfd\xe0" +
-	"C\x97>\xfb\xc4\xdb?\x02\x92\xf1\xdd\x9c\xd1\xdfG\xd0" +
-	"\x9c\x93}\xbfy\xed\xea\x89\xc5\x17\xdb\xddd_\xd2{" +
-	"\x91\x9eu\xfd\xfcJ\x1f\xa7k\"\xeb\x01$\xa8d\xad" +
-	"*?\x05\xcc\x92\xc8}H\xd7\x09\x1b:\x1a\x19\xa7\x95" +
-	"\x88\x88\x9a\x88\xefr\xa6\x8f\xe3\xcf\x81\x0d!\xcaoC" +
-	"\xaa\x88\xbf7\xf2\x1e\xd2\xc3\xc2\x8eV\"\x7f\x01\x94\xb0" +
-	"\xb6?hg\xf4}\xca\xa2[\x01\xe8\xb1\xe88}!" +
-	"*\\\xdf\xf9\xd6\xd6\xc9\xb9?\x8d\xfe\x02\xc8gPB" +
-	"\xe1\x16/{\":\x89\xf4\x940\xa3\xcfG\x05\xca_" +
-	"V\x0f\xf4\xbf\xfe\xe2\xef/\x02\xe9\x0b\x84\x09\xa10\x0e" +
-	"u\x8d!]\xdd%\x8cI\x97@\xfc\x91\x87^\x7f\xfb" +
-	"\xca\x9b\x1f\\\xeaD\x8b\xe1\xae\x0bt\x9bk\xfb\xa5." +
-	"\xe1x\xdd\x9e\xcc\xba\xbe\xca3\x97E\x16\xe09|\xba" +
-	"k\x9f(\xdf\xf3\xae3\xfa\xc1\xc6\xef\xfdc\xe9\x9ew" +
-	"\xda\"\xbbi\x9e\xeb\x9aDz\xd1\xf5\xb6\xe4z[\\" +
-	"z\xfc\xa2\xbd\xbf\xeb\x0f\xc0R\xa8\xc9\xd0\xa2Z\xf4\x8e" +
-	"\xee\xf3t[\xb7\x1b\xb9[\x80\x95\xfd\xd9\xc6D\xed\x99" +
-	"\x7f\xff\x19\xc8\xdaV\xe4\xbe\xd8S\"\xf2PLD\xde" +
-	"{\xaa\xfb\x9b\x13u\xe7o\x01\xe2\xec\x89\xf5\x0a\xe2<" +
-	"\xfa*Yx\xf5\x0b\xa3W\x81\xdd\x8a(\xbb`'\xea" +
-	"\x0a@vg,\x85toLDb1\x91\xd5\x99\xc7" +
-	"\xff\x93\x9d9\xf6\xe1U\xb7\x88~\xa8\x97b.G\xcf" +
-	"\xb9\x16-\x82\xb3\x14\x06*'\x1cb\x94n\x88_\xa0" +
-	"w\xc4]\xf4\xe2/\x03:Ot\xf7/\xb2{?\xfd" +
-	"!\xb0\xb5\x01\x7f\xf1\xef\x0b\x7fg\xe3\xc2\xdf\xda#\xbf" +
-	"<\xf8\xf7g\xdf\xfa\x1f\x90[\x03\xf95\x0d\xd7\xacJ" +
-	"!\xdd\xb0J\xb8[\xb7j;<\xe0\xd4\xb9i\x95," +
-	"\x9b\x87\xaa\x05\x9e)\x18\xf5j\xfd\xce\xdd5\xcb\xce\xd5" +
-	"L;\xcf\xadZy\x8e\x9b\x99<?T\xb2l\xd30" +
-	"3\xbb\xb9\xb1\xdd\xb4\xa7\xb9a\xe7\x10\x99\xa6\x86\x00Z" +
-	"H\xa1\xdfk\x84\x0c\x82BBzB\xd8\xed\xc0\x1cb" +
-	"+\x8a\"\xa3L\xd9\x0d\xb38\xaf\xe7\xf9\x0c\x8b`0" +
-	"\xe9\xe8f\x091\x09mN\x7f\xedH\x95\x9b\xe9\xaf\xd7" +
-	"\xee\xe7U\x16Q5\x00\x0d\x01\xc8\x86~\x006\xa0\"" +
-	"\xdb\xa4 A\xec\x11X\x90\xa1I\x00\xb6QE\xf6E" +
-	"\x05\xf59\xc3\xc6\xa4\xa4# &\x01\x9dr\xad`\x94" +
-	"\xf3|\x06\x000)\x03y\xb7~\x9e\x9a\xcc3\xe7\x1d" +
-	"U\xedL\x9e\x97\xb9aq\x91y\xba8\x9f\xe73\x12" +
-	"\x04_ \xd0W$B\xc6\x08I\x03\x92!}\xc1l" +
-	"~\xc74T\x9c\x7f.\xde~K\xea\xe0\x99\xf3\xc04" +
-	"\x05G{\x10c\x00\x04\xf3\x8eg3\x05\x98\x07\xb8&" +
-	"h\xa3\xc5\xa2\xc9\xad\xb4\x95)\xd5G\x82`\x8cu\x02" +
-	"C\x1c\xde\xa6\"\xdb\xa2\xe0B\xb9v\x84\x9b#[0" +
-	"\x0a\x0aF\x01\x17\x1a\xf5z\xf0w+V\xf8z\x0fw" +
-	"\xdf\x9d\xf1\xb2\x1d\xc8\xf3\xb4\xd5(\xdb\x16\xd3Z\xb9\xc4" +
-	"E\xd8\x88\x8a\xacG\xc1\x05\xabQ(p\xcbB\x04\x05" +
-	"1\x10F\xbfQ\xb65\xc9\x96\x11\xff\x0c\xe4\xb9\xd5\xd0" +
-	"\xcb\xb6\xd5\x09\x98<\xb7\xec\x9a\xa9r\x93i\x88\x01u" +
-	"C\xd3i^\xf1\x1c\xa4\x0d\xd3\xa8X^\xc1|\x13\xf4" +
-	"5\x88\x901\x97\xb5\x0bf\xd3~y\x0dn\x12\x97\x9c" +
-	"\x91\x10\xb1Z\x9f\xab\xd7z\xaf\x9f\xb1\x1c\x0c\x98w|" +
-	"\x04\x00M/[_\xae\xd0\xef\xfe\xe5\xf4r\x91[\x81" +
-	"^\xf79\x1e\xba\x13\x90(\xf2\xaa-\x18\xe6v\xdd\xc5" +
-	"\xdd?\xf8\xc6\x1bK/\x9f\x06\x009\x05\x00:\xf5A" +
-	"\xe7:%D\xa1\\Wry\x88\xe6\xe5\xe4\"\xd1\x07" +
-	"\x1c\xbf\x8c\x80\xb6\xf74n\xc2\xf6\\\xb0\x1a\xbe=\xfa" +
-	"jI\xc8$($\xaa;\xa6\xffA{W\x84o\x88" +
-	"B~\xbc\x9ca\xeaF\xc5\x12\x0d\x9blQ\xd5\x98\x06" +
-	"`\x07Ud\xe5@\xdb\x94\x06\x01XQEVW\x10" +
-	"\x95\x1eT\x00HE\x9c\xcd\xaa\xc8l\x05\x89\xaa\xf4\xa0" +
-	"\x0a@\x0eo\x06`e\x15\xd9Q\x05\x9di\xc3\xe2#" +
-	"[\xee6@\xb7'\x8a\x18\x03\x05c\x80\x89\xd9\x9ae" +
-	"\xb7~\xd4k\xa6\x8d:(\xa8\x03\xa6\x8dr\xc9\xb0\xfc" +
-	"\xabN\x84n\xb2,!h\xc6b\x18\x9c\xc1d_`" +
-	",\x92\xe9\xc0nE\x1es\xa6\x8c9.\x90\x05\xb5b" +
-	"\xb9?D\xd3\x80\xdb5>Y\xd1g+\x80\x87\xbe\xef" +
-	"\x1b}\xbf-\x05\xb7\x8c\xb9\xb6F\xd0\xda{\xce\x85\xbb" +
-	"\xd9anE\x01\x04\xc8\x01m\x9a\x942\xd4\x02yX" +
-	"\x1cnR\x91\xdd\xa5\\O\x92-n\x94yql\xbe" +
-	"y\xdb\x1a\x137$\xd8>\x1a\x15\x0b\x9aR\xddY\xa4" +
-	"\xb8Q\xdeU3W\xf0\x1e\xa8\xcb\xdd\x86\x9d3l\x9c" +
-	"m{d\xefu\x04X-\x151)7\x94\xa6\xff\x05" +
-	"\xc3\x95s\x0b\x93r\x07\xb8\xf6\xbbZp{\x02\xe5\xea" +
-	"aY].\xbe\xfd\xf2]z\xc1\xa8cJS\x011" +
-	"uCH\xb9\xfe\xec\x8f\x170\x7f\xbd\x02Z\x1e\xa3\x00" +
-	"g0)7\x0e\xef)\x8d\xaa`\xd1T\xbeY\xc0\xf6" +
-	"\xdb\xce\x10O\x14\xa1\xadU\xf7uj\xd5}\x81\xb6T" +
-	"\xbc^=,\x0e\xeb*\xb2\x07E\xaf\xaa\xcd^\x9d\x17" +
-	"\x87GUd\x0f+\xe8\xd4\x1b\xd3\xe5R\xe1\xab\x1c\xd4" +
-	"\xf9Mr\x00\xca\xc3\xe1N\x87\x9b;\x1df?6?" +
-	"WZ\xa3<\x9d\x1ep\x19\x89\xcb\xca\xd6+\xcb&\x98" +
-	"\xd2\xae\x0b\x9fh\\\x8a0j\xe7\x19$\x07\x96X\xab" +
-	"\xb0\xea\x15<\xe68\xcd\x8a\x0fJ6\xc7\xf1#\xc7\xa3" +
-	"\xf3\xa0\xe4A\xc2\xe6G\xa5\xb2\x15\x0d\xdb\xc08(\x18" +
-	"\x87\x9b\xd5g_\xde\xe5&\xd1\x99x-\xde\x9d\x06`" +
-	"[Td;\x14tf\xe5`A\"\x07\x10 \x12W" +
-	"8\x0a\x96\x80\x04]L&\xaav\x9a\x9bsF\x19#" +
-	"\xa0`\x04VX\xaf\xd0\x1d\x131\x17\x0fD\xf9\xd7(" +
-	"\xd9\xd9\x0f\x0aQ\"M\x9e\x05\xe1h\x82$\x886<" +
-	"\x18\xd8@K\xf5\x91e\xaa\xbfl\x1e\xdc\x14eZ\xad" +
-	"\x1e@'P\xa4\x96\xe2\x04Kt\xcd\xe1\xb32#\xc4" +
-	"\xba\x8df\x9b\\\x0eJ~&\x0e5$C\xff\x1f\x00" +
-	"\x00\xff\xffW\x0a\x9a\x93"
+type Gateway capnp.Client
+
+// Gateway_TypeID is the unique identifier for the type Gateway.
+const Gateway_TypeID = 0x8f9c2c0a602f27ed
+
+func (c Gateway) Register(ctx context.Context, params func(Gateway_register_Params) error) (Gateway_RegResults_Future, capnp.ReleaseFunc) {
+
+	s := capnp.Send{
+		Method: capnp.Method{
+			InterfaceID:   0x8f9c2c0a602f27ed,
+			MethodID:      0,
+			InterfaceName: "persistence.capnp:Gateway",
+			MethodName:    "register",
+		},
+	}
+	if params != nil {
+		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Gateway_register_Params(s)) }
+	}
+
+	ans, release := capnp.Client(c).SendCall(ctx, s)
+	return Gateway_RegResults_Future{Future: ans.Future()}, release
+
+}
+
+func (c Gateway) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
+
+	s := capnp.Send{
+		Method: capnp.Method{
+			InterfaceID:   0xb2afd1cb599c48d5,
+			MethodID:      0,
+			InterfaceName: "common.capnp:Identifiable",
+			MethodName:    "info",
+		},
+	}
+	if params != nil {
+		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
+		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
+	}
+
+	ans, release := capnp.Client(c).SendCall(ctx, s)
+	return common.IdInformation_Future{Future: ans.Future()}, release
+
+}
+
+func (c Gateway) Restore(ctx context.Context, params func(Restorer_RestoreParams) error) (Restorer_restore_Results_Future, capnp.ReleaseFunc) {
+
+	s := capnp.Send{
+		Method: capnp.Method{
+			InterfaceID:   0x9fb6218427d92e3c,
+			MethodID:      0,
+			InterfaceName: "persistence.capnp:Restorer",
+			MethodName:    "restore",
+		},
+	}
+	if params != nil {
+		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 2}
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Restorer_RestoreParams(s)) }
+	}
+
+	ans, release := capnp.Client(c).SendCall(ctx, s)
+	return Restorer_restore_Results_Future{Future: ans.Future()}, release
+
+}
+
+func (c Gateway) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
+}
+
+// String returns a string that identifies this capability for debugging
+// purposes.  Its format should not be depended on: in particular, it
+// should not be used to compare clients.  Use IsSame to compare clients
+// for equality.
+func (c Gateway) String() string {
+	return "Gateway(" + capnp.Client(c).String() + ")"
+}
+
+// AddRef creates a new Client that refers to the same capability as c.
+// If c is nil or has resolved to null, then AddRef returns nil.
+func (c Gateway) AddRef() Gateway {
+	return Gateway(capnp.Client(c).AddRef())
+}
+
+// Release releases a capability reference.  If this is the last
+// reference to the capability, then the underlying resources associated
+// with the capability will be released.
+//
+// Release will panic if c has already been released, but not if c is
+// nil or resolved to null.
+func (c Gateway) Release() {
+	capnp.Client(c).Release()
+}
+
+// Resolve blocks until the capability is fully resolved or the Context
+// expires.
+func (c Gateway) Resolve(ctx context.Context) error {
+	return capnp.Client(c).Resolve(ctx)
+}
+
+func (c Gateway) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Client(c).EncodeAsPtr(seg)
+}
+
+func (Gateway) DecodeFromPtr(p capnp.Ptr) Gateway {
+	return Gateway(capnp.Client{}.DecodeFromPtr(p))
+}
+
+// IsValid reports whether c is a valid reference to a capability.
+// A reference is invalid if it is nil, has resolved to null, or has
+// been released.
+func (c Gateway) IsValid() bool {
+	return capnp.Client(c).IsValid()
+}
+
+// IsSame reports whether c and other refer to a capability created by the
+// same call to NewClient.  This can return false negatives if c or other
+// are not fully resolved: use Resolve if this is an issue.  If either
+// c or other are released, then IsSame panics.
+func (c Gateway) IsSame(other Gateway) bool {
+	return capnp.Client(c).IsSame(capnp.Client(other))
+}
+
+// Update the flowcontrol.FlowLimiter used to manage flow control for
+// this client. This affects all future calls, but not calls already
+// waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
+// which is also the default.
+func (c Gateway) SetFlowLimiter(lim fc.FlowLimiter) {
+	capnp.Client(c).SetFlowLimiter(lim)
+}
+
+// Get the current flowcontrol.FlowLimiter used to manage flow control
+// for this client.
+func (c Gateway) GetFlowLimiter() fc.FlowLimiter {
+	return capnp.Client(c).GetFlowLimiter()
+}
+
+// A Gateway_Server is a Gateway with a local implementation.
+type Gateway_Server interface {
+	Register(context.Context, Gateway_register) error
+
+	Info(context.Context, common.Identifiable_info) error
+
+	Restore(context.Context, Restorer_restore) error
+}
+
+// Gateway_NewServer creates a new Server from an implementation of Gateway_Server.
+func Gateway_NewServer(s Gateway_Server) *server.Server {
+	c, _ := s.(server.Shutdowner)
+	return server.New(Gateway_Methods(nil, s), s, c)
+}
+
+// Gateway_ServerToClient creates a new Client from an implementation of Gateway_Server.
+// The caller is responsible for calling Release on the returned Client.
+func Gateway_ServerToClient(s Gateway_Server) Gateway {
+	return Gateway(capnp.NewClient(Gateway_NewServer(s)))
+}
+
+// Gateway_Methods appends Methods to a slice that invoke the methods on s.
+// This can be used to create a more complicated Server.
+func Gateway_Methods(methods []server.Method, s Gateway_Server) []server.Method {
+	if cap(methods) == 0 {
+		methods = make([]server.Method, 0, 3)
+	}
+
+	methods = append(methods, server.Method{
+		Method: capnp.Method{
+			InterfaceID:   0x8f9c2c0a602f27ed,
+			MethodID:      0,
+			InterfaceName: "persistence.capnp:Gateway",
+			MethodName:    "register",
+		},
+		Impl: func(ctx context.Context, call *server.Call) error {
+			return s.Register(ctx, Gateway_register{call})
+		},
+	})
+
+	methods = append(methods, server.Method{
+		Method: capnp.Method{
+			InterfaceID:   0xb2afd1cb599c48d5,
+			MethodID:      0,
+			InterfaceName: "common.capnp:Identifiable",
+			MethodName:    "info",
+		},
+		Impl: func(ctx context.Context, call *server.Call) error {
+			return s.Info(ctx, common.Identifiable_info{call})
+		},
+	})
+
+	methods = append(methods, server.Method{
+		Method: capnp.Method{
+			InterfaceID:   0x9fb6218427d92e3c,
+			MethodID:      0,
+			InterfaceName: "persistence.capnp:Restorer",
+			MethodName:    "restore",
+		},
+		Impl: func(ctx context.Context, call *server.Call) error {
+			return s.Restore(ctx, Restorer_restore{call})
+		},
+	})
+
+	return methods
+}
+
+// Gateway_register holds the state for a server call to Gateway.register.
+// See server.Call for documentation.
+type Gateway_register struct {
+	*server.Call
+}
+
+// Args returns the call's arguments.
+func (c Gateway_register) Args() Gateway_register_Params {
+	return Gateway_register_Params(c.Call.Args())
+}
+
+// AllocResults allocates the results struct.
+func (c Gateway_register) AllocResults() (Gateway_RegResults, error) {
+	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 8, PointerCount: 2})
+	return Gateway_RegResults(r), err
+}
+
+// Gateway_List is a list of Gateway.
+type Gateway_List = capnp.CapList[Gateway]
+
+// NewGateway_List creates a new list of Gateway.
+func NewGateway_List(s *capnp.Segment, sz int32) (Gateway_List, error) {
+	l, err := capnp.NewPointerList(s, sz)
+	return capnp.CapList[Gateway](l), err
+}
+
+type Gateway_RegResults capnp.Struct
+
+// Gateway_RegResults_TypeID is the unique identifier for the type Gateway_RegResults.
+const Gateway_RegResults_TypeID = 0xa232c65d79e97faa
+
+func NewGateway_RegResults(s *capnp.Segment) (Gateway_RegResults, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 2})
+	return Gateway_RegResults(st), err
+}
+
+func NewRootGateway_RegResults(s *capnp.Segment) (Gateway_RegResults, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 2})
+	return Gateway_RegResults(st), err
+}
+
+func ReadRootGateway_RegResults(msg *capnp.Message) (Gateway_RegResults, error) {
+	root, err := msg.Root()
+	return Gateway_RegResults(root.Struct()), err
+}
+
+func (s Gateway_RegResults) String() string {
+	str, _ := text.Marshal(0xa232c65d79e97faa, capnp.Struct(s))
+	return str
+}
+
+func (s Gateway_RegResults) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Gateway_RegResults) DecodeFromPtr(p capnp.Ptr) Gateway_RegResults {
+	return Gateway_RegResults(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Gateway_RegResults) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Gateway_RegResults) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Gateway_RegResults) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Gateway_RegResults) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+func (s Gateway_RegResults) SturdyRef() (SturdyRef, error) {
+	p, err := capnp.Struct(s).Ptr(0)
+	return SturdyRef(p.Struct()), err
+}
+
+func (s Gateway_RegResults) HasSturdyRef() bool {
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Gateway_RegResults) SetSturdyRef(v SturdyRef) error {
+	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
+}
+
+// NewSturdyRef sets the sturdyRef field to a newly
+// allocated SturdyRef struct, preferring placement in s's segment.
+func (s Gateway_RegResults) NewSturdyRef() (SturdyRef, error) {
+	ss, err := NewSturdyRef(capnp.Struct(s).Segment())
+	if err != nil {
+		return SturdyRef{}, err
+	}
+	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
+	return ss, err
+}
+
+func (s Gateway_RegResults) Heartbeat() Heartbeat {
+	p, _ := capnp.Struct(s).Ptr(1)
+	return Heartbeat(p.Interface().Client())
+}
+
+func (s Gateway_RegResults) HasHeartbeat() bool {
+	return capnp.Struct(s).HasPtr(1)
+}
+
+func (s Gateway_RegResults) SetHeartbeat(v Heartbeat) error {
+	if !v.IsValid() {
+		return capnp.Struct(s).SetPtr(1, capnp.Ptr{})
+	}
+	seg := s.Segment()
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
+	return capnp.Struct(s).SetPtr(1, in.ToPtr())
+}
+
+func (s Gateway_RegResults) SecsHeartbeatInterval() uint32 {
+	return capnp.Struct(s).Uint32(0)
+}
+
+func (s Gateway_RegResults) SetSecsHeartbeatInterval(v uint32) {
+	capnp.Struct(s).SetUint32(0, v)
+}
+
+// Gateway_RegResults_List is a list of Gateway_RegResults.
+type Gateway_RegResults_List = capnp.StructList[Gateway_RegResults]
+
+// NewGateway_RegResults creates a new list of Gateway_RegResults.
+func NewGateway_RegResults_List(s *capnp.Segment, sz int32) (Gateway_RegResults_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 2}, sz)
+	return capnp.StructList[Gateway_RegResults](l), err
+}
+
+// Gateway_RegResults_Future is a wrapper for a Gateway_RegResults promised by a client call.
+type Gateway_RegResults_Future struct{ *capnp.Future }
+
+func (f Gateway_RegResults_Future) Struct() (Gateway_RegResults, error) {
+	p, err := f.Future.Ptr()
+	return Gateway_RegResults(p.Struct()), err
+}
+func (p Gateway_RegResults_Future) SturdyRef() SturdyRef_Future {
+	return SturdyRef_Future{Future: p.Future.Field(0, nil)}
+}
+func (p Gateway_RegResults_Future) Heartbeat() Heartbeat {
+	return Heartbeat(p.Future.Field(1, nil).Client())
+}
+
+type Gateway_register_Params capnp.Struct
+
+// Gateway_register_Params_TypeID is the unique identifier for the type Gateway_register_Params.
+const Gateway_register_Params_TypeID = 0xc78c1529af44abab
+
+func NewGateway_register_Params(s *capnp.Segment) (Gateway_register_Params, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	return Gateway_register_Params(st), err
+}
+
+func NewRootGateway_register_Params(s *capnp.Segment) (Gateway_register_Params, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	return Gateway_register_Params(st), err
+}
+
+func ReadRootGateway_register_Params(msg *capnp.Message) (Gateway_register_Params, error) {
+	root, err := msg.Root()
+	return Gateway_register_Params(root.Struct()), err
+}
+
+func (s Gateway_register_Params) String() string {
+	str, _ := text.Marshal(0xc78c1529af44abab, capnp.Struct(s))
+	return str
+}
+
+func (s Gateway_register_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Gateway_register_Params) DecodeFromPtr(p capnp.Ptr) Gateway_register_Params {
+	return Gateway_register_Params(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Gateway_register_Params) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Gateway_register_Params) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Gateway_register_Params) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Gateway_register_Params) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+func (s Gateway_register_Params) Cap() capnp.Client {
+	p, _ := capnp.Struct(s).Ptr(0)
+	return p.Interface().Client()
+}
+
+func (s Gateway_register_Params) HasCap() bool {
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Gateway_register_Params) SetCap(c capnp.Client) error {
+	if !c.IsValid() {
+		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
+	}
+	seg := s.Segment()
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(c))
+	return capnp.Struct(s).SetPtr(0, in.ToPtr())
+}
+
+// Gateway_register_Params_List is a list of Gateway_register_Params.
+type Gateway_register_Params_List = capnp.StructList[Gateway_register_Params]
+
+// NewGateway_register_Params creates a new list of Gateway_register_Params.
+func NewGateway_register_Params_List(s *capnp.Segment, sz int32) (Gateway_register_Params_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
+	return capnp.StructList[Gateway_register_Params](l), err
+}
+
+// Gateway_register_Params_Future is a wrapper for a Gateway_register_Params promised by a client call.
+type Gateway_register_Params_Future struct{ *capnp.Future }
+
+func (f Gateway_register_Params_Future) Struct() (Gateway_register_Params, error) {
+	p, err := f.Future.Ptr()
+	return Gateway_register_Params(p.Struct()), err
+}
+func (p Gateway_register_Params_Future) Cap() capnp.Client {
+	return p.Future.Field(0, nil).Client()
+}
+
+const schema_855efed3475f6b26 = "x\xda\xacX}l[\xd5\x15?\xe7=;\xcfN\xec" +
+	":77\x19[F\x94\x91\xa6\x0b\x0d\xadi\xe3\x10\xa6" +
+	"\x0a\xa9MF\xeb&[4_gC4\xa8\xd0\x97\xf8" +
+	"\xa618\xb6\xfb\xdesR#\xa6\xd0\x0d4Z\x1au" +
+	"\xd9$\xb4N\xad\x0a\xd3>DQ\xd5\xd1A\xa5j\xaa" +
+	"\x10\x15\xfb*\x9a\xb4v\xaaP\x0b\x9a\xb6N\xdb(\xa2" +
+	"\x9a\xa8&\x8du\xc0\x9b\xee{~\x1fq\x9cd \xfe" +
+	"\x89\xec\xfb\xce;\xe7\xdc\xdf\xf9\x9d\xdf9\xce\x86;\x82" +
+	"[\x02\x1b\xa3\x85(H\xecH\xb0\xce\x1c\xfe\xd3\xb7\xdb" +
+	"\xba&\xa7\x9e\x02\xd2\x84\xe6\x17\x1fy(\xf9\xc7\x8f\x1e" +
+	"|\x12\x82\x92\x02@\x8f\xd6]\xa5\xcf\xd7u\x01\xd0\xb3" +
+	"u3\x80\xe6\xf9\xde\xe7^\xb9r\xe0\xf4\x01 \xb7\"" +
+	"@@\x01H\xb4)\x03\x08\x013\x1d?\xf6\x99}\xb1" +
+	"\xe2! m\xb2\xc9_\xef{\xeb\xd9+?{\x15\x00" +
+	"\x13AEC\xfa9ExkQ\x92\x94\x8bO\xe6\xf5" +
+	"\xae;w\xd5\xaf;r\x08H\x93\xec\xc5\x04\xa4\xc3\xca" +
+	"E\xbaC\xb9\x05\x80r%I\xe7\x95.\x003{`" +
+	"\xff\xed\x81\x9d\xa7\x0e\x01kE\xd9\x8c>\xf0\xec\x9e\xba" +
+	"}\xc9\xffB\x0b*\x08@\xf7+7\x00\xe9\x9c\"\xd2" +
+	"\x1by\xbb\xb1\xf3\xaf\xf9\xf5\xdf\x07\x16G'\xbfk\xca" +
+	"\x0d\x04\xa4\x1f*\x9b\x01\xcdM\xe7\x93\x17n\x9e\xfd\xc5" +
+	"\xb1Eq\xdbBW\xe9\xda\x90HrM(I\x87\xc5" +
+	"'\xf3\x9e\xf8\xe5\xae'n;\xbd\xd8\xf8\xae\xd0\x15\xda" +
+	"\x1f\x12I\x0e\x87\x92\xb4d\x19\x1f\x9f\xbdV\xde\xf9\xeb" +
+	"\x9e\x1f\x89$\xd1\xbb\x9f\x05cbg\xa8\x1b\xe9\x94\xe5" +
+	">\x1b:\x09h\xb6<\xf6\xf8\xe5/\x1c|\xf3\xc7@" +
+	"\xe2N\x9e$\xfc\x8e\xc0\xf1X\xdb\x1fN\xdf\x9c\x9f;" +
+	"^\x1d4\x11\x0c\xb7\"m\x09\x8b\xa8\xb7\x85\x93tO" +
+	"X@s\xea\xbb\xdb\x8a\xa5\x7f\x9f\xff9\x90\xd5\xb2\xf7" +
+	"*`\"\x1b~\x18\xe97-\xeb\xfd\xe1$}9," +
+	"r\x8cE\xb7\x99c\x87\xf0\x15`\xeb\x11\xbdw\x83\xb2" +
+	"\x88\x7f4|\x15\xe9\x19aG_\x0e\xff\x03\xd0+b" +
+	"\xf5\xf5\xe7\xea\xdf\xa1\x87\xeb\xef\x06\xa0\xbf\xabO\xd2\xf7" +
+	"\xea\x85\xebMo\xdc=4\xfd\xb7\xfe_\x01\xf9<z" +
+	"\xc0\xd9\xb7\xbf\\?\x84\xf4\xba0\xa3\xd7\xeaE\x99^" +
+	"x\xe1\xde\x93k[\x0e\xfe\x06H+\x02\x04Q\x18\x0d" +
+	"7\xa4E\x99v4\x882}Y~\xb0\xe3\xb5\xe3\x7f" +
+	"\xbe\x04\xa4\xcd\x97\x87mXn\x18@\xba\xbfAx{" +
+	"\xd22\xfe\xce\xe3\xaf\xbdy\xe3\xf7\xef^\xae\xc5\xdf\x9f" +
+	"4\\\xa4/Z\xb6'\x1aD\xe45\xc3\xf15mS" +
+	"\xcf\\\x11i:\x91\xc3\x91Q\x11\xb9%\"\x9c\xd1w" +
+	"\xd7\xfd\xe0\x9f\x17\x1ex\xab*\xb2u\x8f\xbb\"CH" +
+	"\x07#\xc2\xdb\xd6\x88\xf06w\xe1\xe9K\xc6\xce\xfa\xbf" +
+	"\x00k\xc2\x80\x17Z\x94\x93>\x1f9G_\xb4lO" +
+	"D\x04\x9a\x89_\xae\x8b\x15\x9ey\xff\xef@V\xbb\x91" +
+	"\xe7\xa3\xdf\x13\x91\x9f\x8b\x8a\xc8\xef\xb7\xbc\xfd\xd3s\xdf" +
+	"\xea\xfb\x97\xaf\xb5^\x8d\x0e\x09J<\xf5\x12\x99}\xe9" +
+	"\x8e\xfe\x9b\xc0nE\xf4\xdau+*\x12@\xe2D\xb4" +
+	"\x09\xe9\xd9\xa8\x88t&*\xb2:\xf3\xf4\x7f\x12\x13\xfb" +
+	">\xb8iU\xd9\x09\xd5\xb2\xca\xea\x82\xb5\xab\x84\x85\xdb" +
+	"B\xac\x09}\xa5\x15\x0e1L\xe7W]\xa4GW\x09" +
+	"\x7f\x87W\x09\xae\x1el\xe8\x98c\x0f}\xf6\x03`\xab" +
+	"}\xfeb?\x14\xfe\xd6\xc4\x84\xbf\xd53\xbf\xddu\xfd" +
+	"\xf0\x1b\x1f\x8a\xd4\xbd\xfcl\xc3}\xb1&\xa4\xf31\xe1" +
+	"n.\xb6\x19\x1e5\x8b\\\xd3\xb3\xba\xc1\xa5\xfc8\x8f" +
+	"\x8f\xab\xc5|q\xd3\x88Q\xd22e%\xcd'X\x08" +
+	"\xfd\xee\xc2=\xde\xe5I\xb0\xa7\xfdk3y\xae\xb5\x7f" +
+	"\xbd\xf0\x08\xcf\xb3\x90\x1c\x00\x08 \x00Y\xdb\x01\xc0:" +
+	"ed\x1b$$\x88\xcd\"K\xb2~\x08\x80\xad\x93\x91" +
+	"}IBeZ5\xb0\xd1#\x0a 6\x02\x9a\xb9\xc2" +
+	"\xb8\x9aK\xf3\x09\x00\xc0F/P\xe5\xa9\x93g\xd8\xcb" +
+	"s;W5c\x8c\xabF\\\xfc\xe9L\xa9\x9a:\xa5" +
+	"\x83c\xe8\xd9\xa5\x9c\x13#\x9e\xe69\xae\xea\\\xdc\xb0" +
+	"=SN\xf3\x89\x14\"\x0b\xc8A\x00W\x03\xd0Q-" +
+	"B\x06\x08i\x07$\xeb\x95Y\xcd~\x8f\x05P2\xdf" +
+	"\x9b\xbb\xf3\x96\xa6]g\xce\x01\x0bH\xd8\xdf\x8c\x18\x01" +
+	" \x986+6#\x80i\x80-\x98B\xac\x05nR" +
+	"5\xf8\x8c\x8ae\x16@\xf4T\x8a\xe0\xa8\x99\xe6\xbb\xd3" +
+	"\\/\xe5@6\xf4JNNg\xa2cH\xc8\x10H" +
+	"$\xac\x98\x1a\xdf-\x1ck BYe\xba\xb4\xfd\xc8" +
+	"\x8e\xd7/\x9c<\x05~\xa9\x04\xa8\x95C\x7f&\xa3q" +
+	"\xbd]\x8fg\x8b}\xfe\xc2\x0d\xd4*\x9c8\xbc]F" +
+	"\xd6+\xe1l\xae0\xc3\xb5\xbe^\x0c\x83\x84a\xc0\xd9" +
+	"R\xb1\xe8\xff\xee\xc6\xaa[\x09|\x0b\xfbx\x05\xb1\xce" +
+	"4o\xd7K9\xeb\xd6N.Q\x116$#k\x96" +
+	"pV/\x8d\x8fs]G\x04\x09\x11j\xc2jsA" +
+	"\xe1\xaa\xe1U\xd4\x99\x8e\xe8\xf42!\xdd \x91\xa0\x12" +
+	"\x13|Y\xb2Bi\xae\x1b\x05M\xe6\x9aU\"OI" +
+	"Q3\xedG<\x05\xed\x16\xd7*q\x1c\x13t\xe4\x8c" +
+	"\x90\x01+\xce\xacf\xdb/\x0c%W\x93\xa1\x1c\xb7K" +
+	"\x1f\x13\x18\x88\xf4#.\x0c[\xd3\x00\xec^\x19Y\xca" +
+	"W\x92aq\xf8U\x19\xd9\xfd\x12\xa2\xd4\x8c\x12\x00\xf9" +
+	"\xc6)\x00v\xbf\x8c,#\xa1\xa9W\x10\x06\x9c\xc0F" +
+	"O\x01*\x9d4Yi\x1b@\x03\x897\x82\x01\x91\x00" +
+	"\x9a:\x1f\xd7\x05\x98hu\xd6`\xdeh\xe7\xda\xb4\x9a" +
+	"\xc3\x10H\x18\xfa\xe4%N\xa91\x81X-\x10\xb6\x17" +
+	"t#U\xd0\x8c4\xd7\x0b\xb9i\x07wo\x94bZ" +
+	"\xb4FV74\x15P\xab`\xee\xe87:r\xb8\xb0" +
+	"[\x85\xa7\xe5\xba\xf5a\xd3\x8e\xc6\x07!\x96\xe1y\xe3" +
+	"\xff\xee\xa2\xc0Rys-ne\x1934\xd5\xbe\x81" +
+	";\xde\x09>Z\xb9\x01\xd7`s\xcaO\x1d\xc7\x06\x9d" +
+	")Q\xbb\xc1\xfd\xf4\xa9[)\x03\x91@\xdc\x89\x97R" +
+	"5E\x9d\xb2X\xd5\xe8\xb2J\x1d\x03`\xbbdd9" +
+	"\x1f\xab\xb2\xdd\x00,##+z\xac\x9a\x12g\x932" +
+	"2CB\"K\xcd(\x03\x90==\x00,'#\xdb" +
+	"+\xa19\xa6\xea\xbc\xaf\xf7>\x15\x14c0\x83\x11\x90" +
+	"0\x02\x18\x9b,\xe8\x86\xfb\xa5X\xd0\x0cT@B\x05" +
+	"\xb0]\xcdeU\xddyT\xab\xfbl2\xc5\x04\x9bX" +
+	"\x04\xfd\xbb\x07\x19\xf5\xad\x03d\xcc\xb7\xe2\x92\x03\xe6\x88" +
+	":\xcd\x05\xb2 O\xe9\xd6\x17!\xa5\xa0\xe4\x0c\xddt" +
+	"8\x89\x0e)\x01*\xe8;\xbe\xd1\xf1\xeb\x0a\x84\xaeN" +
+	"Wum\xa0Z ,\xb8m9\xb0\x07\x0f\x08\x90}" +
+	"j:\xe4\x09\xa7\x0b\xf2Fq\xb8AFv\x8f\xb4\xd2" +
+	"\xc0\xd3\xb9\x9a\xe3\x99\x81\xb2\xfd\xd4\x1d\xc2U\xe30\xb0" +
+	"XL\x1c\xe6\xd8\x03\x11\x17\xa8j\x87\xa7\xaa\xca\xb8Z" +
+	"\xc4\xa6\x80\x0c\x88M\xb5\x1d\xfa\xfa\xda\x81wJ\x07[" +
+	"_k\xeb4Ws\xdb\x0a\xda2\xe9\xfa\x0a}\x9fj" +
+	"\xa4T\x03'\xabPk]a\x06\xc9\xd9\x0c6z\xab" +
+	"\x9e\xed\x7fV\xb5&\x9a\x8e\x8d\xde2\xb54Pn\xfd" +
+	"*\xf2\xdci\x8d]\xd9\xf8\xd4\x90\xb2\xfc\x19\x8b\x19\x91" +
+	"^\x89\x11\xcb\x0bw)/h9\x92\xb6\x19Q\xfd\xb4" +
+	"6\xc4\x83\x19\xa8\xea\xfd\xd1Z\xbd?\xea\xebs\xa9\xd2" +
+	"\xfc{\xc4aQF\xf6\x98h~\xd9n\xfe\xb28\xdc" +
+	"+#{BB\xb3X\x1a\xcbe\xc7\xbf\xc2A.o" +
+	"\xf0v\x00\xefpc\xad\xc3\x9eZ\x87\x89E+Dp" +
+	"\x19\x99\xab\xe8{-\x82\xb7ze\x13L\xa9\x16\x9a\xc0" +
+	"\x92\xdb\xa3[\xb3Z#\xca\x9bgb\xd9\xc5|\xa5\xae" +
+	"\x11\xd3\xb4\x0b\xdb\xed\x916\x8a\x1f\x99\x15\xd6v{\xe5" +
+	"\x8e\x19|\xaf\xa7\x88\x19\xd5P1\x0a\x12F\xe1\xe3\xea" +
+	"\xba\xdb\xdc\xee\xceT\x9b_.\xbd\xc4^\xd0+#\xdb" +
+	"\"}Z\x93\x7f\xd1\"\x89\xce\xd2\x121MD\xef\xff" +
+	"\x03dk\x07HD\x0a\xd9t\xf2\xc3a\x83$\xf8\xb4" +
+	"\xb1\xdb\xf7\xbb [\xec[0-\x16\xcc\x91\x8f\xc5\x0c" +
+	"\xb7\xa3}\xe8\xf8\x8a\xe4\x0a\x8b\xbfDK\x0e\xad\xe5\x19" +
+	"!~\x04\xa1V\xa5\x8a\xdd\x1e\x0dc\xbbK\x1e\x11\xff" +
+	"\x17\x00\x00\xff\xff\x079\x0d\xc6"
 
 func RegisterSchema(reg *schemas.Registry) {
 	reg.Register(&schemas.Schema{
 		String: schema_855efed3475f6b26,
 		Nodes: []uint64{
-			0x87de92d2d68df26f,
 			0x886d68271d83de4d,
+			0x8ab68adabfa134ca,
 			0x8f700f81169f2e52,
+			0x8f9c2c0a602f27ed,
 			0x8fb25d0428898a69,
 			0x932d6ee32410e853,
-			0x9510c22fa544a65e,
+			0x9fb3bdfad147ca3a,
 			0x9fb6218427d92e3c,
+			0xa232c65d79e97faa,
 			0xa4db8c20d9807c15,
 			0xaa8d91fab6d01d9f,
 			0xb0caf775704690b2,
 			0xbf018f62ff460d0f,
 			0xc1a7daa0dc36cb65,
 			0xc541e5764a37d73a,
+			0xc78c1529af44abab,
 			0xd5e0aac4225e0343,
 			0xd9eccdf2dbc48087,
 			0xda966d1d252e4d25,
 			0xdc5bd1ef982cec13,
 			0xe10a5d74d58bd18d,
 			0xe6f8966f0f2cbb33,
-			0xebff70497e0ba555,
+			0xf43682c2a6e815f8,
 			0xfa412bb47f11b488,
 			0xfafc816633f98bb9,
 			0xfb47810671a05b0d,

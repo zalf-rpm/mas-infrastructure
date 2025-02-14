@@ -232,7 +232,7 @@ func (c Cluster_Unregister_unregister) AllocResults() (Cluster_Unregister_unregi
 // Cluster_Unregister_List is a list of Cluster_Unregister.
 type Cluster_Unregister_List = capnp.CapList[Cluster_Unregister]
 
-// NewCluster_Unregister creates a new list of Cluster_Unregister.
+// NewCluster_Unregister_List creates a new list of Cluster_Unregister.
 func NewCluster_Unregister_List(s *capnp.Segment, sz int32) (Cluster_Unregister_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[Cluster_Unregister](l), err
@@ -615,7 +615,7 @@ func (c Cluster_AdminMaster_availableModels) AllocResults() (Cluster_AdminMaster
 // Cluster_AdminMaster_List is a list of Cluster_AdminMaster.
 type Cluster_AdminMaster_List = capnp.CapList[Cluster_AdminMaster]
 
-// NewCluster_AdminMaster creates a new list of Cluster_AdminMaster.
+// NewCluster_AdminMaster_List creates a new list of Cluster_AdminMaster.
 func NewCluster_AdminMaster_List(s *capnp.Segment, sz int32) (Cluster_AdminMaster_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[Cluster_AdminMaster](l), err
@@ -1151,7 +1151,7 @@ func (c Cluster_UserMaster_availableModels) AllocResults() (Cluster_UserMaster_a
 // Cluster_UserMaster_List is a list of Cluster_UserMaster.
 type Cluster_UserMaster_List = capnp.CapList[Cluster_UserMaster]
 
-// NewCluster_UserMaster creates a new list of Cluster_UserMaster.
+// NewCluster_UserMaster_List creates a new list of Cluster_UserMaster.
 func NewCluster_UserMaster_List(s *capnp.Segment, sz int32) (Cluster_UserMaster_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[Cluster_UserMaster](l), err
@@ -1703,7 +1703,7 @@ func (c Cluster_Runtime_reserveNumberOfCores) AllocResults() (Cluster_Runtime_re
 // Cluster_Runtime_List is a list of Cluster_Runtime.
 type Cluster_Runtime_List = capnp.CapList[Cluster_Runtime]
 
-// NewCluster_Runtime creates a new list of Cluster_Runtime.
+// NewCluster_Runtime_List creates a new list of Cluster_Runtime.
 func NewCluster_Runtime_List(s *capnp.Segment, sz int32) (Cluster_Runtime_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[Cluster_Runtime](l), err
@@ -2792,7 +2792,7 @@ func (c Cluster_ValueHolder_releaseValue) AllocResults() (Cluster_ValueHolder_re
 // Cluster_ValueHolder_List is a list of Cluster_ValueHolder.
 type Cluster_ValueHolder_List = capnp.CapList[Cluster_ValueHolder]
 
-// NewCluster_ValueHolder creates a new list of Cluster_ValueHolder.
+// NewCluster_ValueHolder_List creates a new list of Cluster_ValueHolder.
 func NewCluster_ValueHolder_List(s *capnp.Segment, sz int32) (Cluster_ValueHolder_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[Cluster_ValueHolder](l), err
@@ -3571,7 +3571,7 @@ func (c Cluster_ModelInstanceFactory_restoreSturdyRef) AllocResults() (Cluster_M
 // Cluster_ModelInstanceFactory_List is a list of Cluster_ModelInstanceFactory.
 type Cluster_ModelInstanceFactory_List = capnp.CapList[Cluster_ModelInstanceFactory]
 
-// NewCluster_ModelInstanceFactory creates a new list of Cluster_ModelInstanceFactory.
+// NewCluster_ModelInstanceFactory_List creates a new list of Cluster_ModelInstanceFactory.
 func NewCluster_ModelInstanceFactory_List(s *capnp.Segment, sz int32) (Cluster_ModelInstanceFactory_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[Cluster_ModelInstanceFactory](l), err

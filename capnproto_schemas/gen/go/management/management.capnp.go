@@ -10,7 +10,6 @@ import (
 	server "capnproto.org/go/capnp/v3/server"
 	context "context"
 	common "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/common"
-	common_date "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/common_date"
 	crop "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/crop"
 	geo "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/geo"
 	persistence "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/persistence"
@@ -301,25 +300,25 @@ func (s Event_at) Message() *capnp.Message {
 func (s Event_at) Segment() *capnp.Segment {
 	return capnp.Struct(s).Segment()
 }
-func (s Event_at) Date() (common_date.Date, error) {
+func (s Event_at) Date() (common.Date, error) {
 	p, err := capnp.Struct(s).Ptr(1)
-	return common_date.Date(p.Struct()), err
+	return common.Date(p.Struct()), err
 }
 
 func (s Event_at) HasDate() bool {
 	return capnp.Struct(s).HasPtr(1)
 }
 
-func (s Event_at) SetDate(v common_date.Date) error {
+func (s Event_at) SetDate(v common.Date) error {
 	return capnp.Struct(s).SetPtr(1, capnp.Struct(v).ToPtr())
 }
 
 // NewDate sets the date field to a newly
-// allocated common_date.Date struct, preferring placement in s's segment.
-func (s Event_at) NewDate() (common_date.Date, error) {
-	ss, err := common_date.NewDate(capnp.Struct(s).Segment())
+// allocated common.Date struct, preferring placement in s's segment.
+func (s Event_at) NewDate() (common.Date, error) {
+	ss, err := common.NewDate(capnp.Struct(s).Segment())
 	if err != nil {
-		return common_date.Date{}, err
+		return common.Date{}, err
 	}
 	err = capnp.Struct(s).SetPtr(1, capnp.Struct(ss).ToPtr())
 	return ss, err
@@ -342,49 +341,49 @@ func (s Event_between) Message() *capnp.Message {
 func (s Event_between) Segment() *capnp.Segment {
 	return capnp.Struct(s).Segment()
 }
-func (s Event_between) Earliest() (common_date.Date, error) {
+func (s Event_between) Earliest() (common.Date, error) {
 	p, err := capnp.Struct(s).Ptr(1)
-	return common_date.Date(p.Struct()), err
+	return common.Date(p.Struct()), err
 }
 
 func (s Event_between) HasEarliest() bool {
 	return capnp.Struct(s).HasPtr(1)
 }
 
-func (s Event_between) SetEarliest(v common_date.Date) error {
+func (s Event_between) SetEarliest(v common.Date) error {
 	return capnp.Struct(s).SetPtr(1, capnp.Struct(v).ToPtr())
 }
 
 // NewEarliest sets the earliest field to a newly
-// allocated common_date.Date struct, preferring placement in s's segment.
-func (s Event_between) NewEarliest() (common_date.Date, error) {
-	ss, err := common_date.NewDate(capnp.Struct(s).Segment())
+// allocated common.Date struct, preferring placement in s's segment.
+func (s Event_between) NewEarliest() (common.Date, error) {
+	ss, err := common.NewDate(capnp.Struct(s).Segment())
 	if err != nil {
-		return common_date.Date{}, err
+		return common.Date{}, err
 	}
 	err = capnp.Struct(s).SetPtr(1, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
-func (s Event_between) Latest() (common_date.Date, error) {
+func (s Event_between) Latest() (common.Date, error) {
 	p, err := capnp.Struct(s).Ptr(2)
-	return common_date.Date(p.Struct()), err
+	return common.Date(p.Struct()), err
 }
 
 func (s Event_between) HasLatest() bool {
 	return capnp.Struct(s).HasPtr(2)
 }
 
-func (s Event_between) SetLatest(v common_date.Date) error {
+func (s Event_between) SetLatest(v common.Date) error {
 	return capnp.Struct(s).SetPtr(2, capnp.Struct(v).ToPtr())
 }
 
 // NewLatest sets the latest field to a newly
-// allocated common_date.Date struct, preferring placement in s's segment.
-func (s Event_between) NewLatest() (common_date.Date, error) {
-	ss, err := common_date.NewDate(capnp.Struct(s).Segment())
+// allocated common.Date struct, preferring placement in s's segment.
+func (s Event_between) NewLatest() (common.Date, error) {
+	ss, err := common.NewDate(capnp.Struct(s).Segment())
 	if err != nil {
-		return common_date.Date{}, err
+		return common.Date{}, err
 	}
 	err = capnp.Struct(s).SetPtr(2, capnp.Struct(ss).ToPtr())
 	return ss, err
@@ -486,8 +485,8 @@ func (f Event_at_Future) Struct() (Event_at, error) {
 	p, err := f.Future.Ptr()
 	return Event_at(p.Struct()), err
 }
-func (p Event_at_Future) Date() common_date.Date_Future {
-	return common_date.Date_Future{Future: p.Future.Field(1, nil)}
+func (p Event_at_Future) Date() common.Date_Future {
+	return common.Date_Future{Future: p.Future.Field(1, nil)}
 }
 func (p Event_Future) Between() Event_between_Future { return Event_between_Future{p.Future} }
 
@@ -498,11 +497,11 @@ func (f Event_between_Future) Struct() (Event_between, error) {
 	p, err := f.Future.Ptr()
 	return Event_between(p.Struct()), err
 }
-func (p Event_between_Future) Earliest() common_date.Date_Future {
-	return common_date.Date_Future{Future: p.Future.Field(1, nil)}
+func (p Event_between_Future) Earliest() common.Date_Future {
+	return common.Date_Future{Future: p.Future.Field(1, nil)}
 }
-func (p Event_between_Future) Latest() common_date.Date_Future {
-	return common_date.Date_Future{Future: p.Future.Field(2, nil)}
+func (p Event_between_Future) Latest() common.Date_Future {
+	return common.Date_Future{Future: p.Future.Field(2, nil)}
 }
 func (p Event_Future) After() Event_after_Future { return Event_after_Future{p.Future} }
 
@@ -2863,7 +2862,7 @@ func (c Fertilizer_parameters) AllocResults() (Fertilizer_parameters_Results, er
 // Fertilizer_List is a list of Fertilizer.
 type Fertilizer_List = capnp.CapList[Fertilizer]
 
-// NewFertilizer creates a new list of Fertilizer.
+// NewFertilizer_List creates a new list of Fertilizer.
 func NewFertilizer_List(s *capnp.Segment, sz int32) (Fertilizer_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[Fertilizer](l), err
@@ -3406,7 +3405,7 @@ func FertilizerService_Methods(methods []server.Method, s FertilizerService_Serv
 // FertilizerService_List is a list of FertilizerService.
 type FertilizerService_List = capnp.CapList[FertilizerService]
 
-// NewFertilizerService creates a new list of FertilizerService.
+// NewFertilizerService_List creates a new list of FertilizerService.
 func NewFertilizerService_List(s *capnp.Segment, sz int32) (FertilizerService_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[FertilizerService](l), err
@@ -3601,7 +3600,7 @@ func (c Service_managementAt) AllocResults() (Service_managementAt_Results, erro
 // Service_List is a list of Service.
 type Service_List = capnp.CapList[Service]
 
-// NewService creates a new list of Service.
+// NewService_List creates a new list of Service.
 func NewService_List(s *capnp.Segment, sz int32) (Service_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[Service](l), err

@@ -53,13 +53,20 @@ struct Query @0xbd4065087e22ca0d {  # 8 bytes, 2 ptrs
     optional @2 :List(PropertyName);  # ptr[1]
   }
 }
-struct Profile @0xff67c2a593419c29 {  # 8 bytes, 2 ptrs
-  id @2 :Text;  # ptr[1]
+struct ProfileData @0xdf4bbf1c883a8790 {  # 8 bytes, 1 ptrs
   layers @0 :List(Layer);  # ptr[0]
   percentageOfArea @1 :Float32 = 100;  # bits[0, 32)
+}
+interface Profile @0xff67c2a593419c29 superclasses(import "/common.capnp".Identifiable, import "/persistence.capnp".Persistent) {
+  data @0 () -> ProfileData;
+  geoLocation @1 () -> import "/geo.capnp".LatLonCoord;
 }
 interface Service @0xa09aa71427dc64e1 superclasses(import "/common.capnp".Identifiable, import "/persistence.capnp".Persistent) {
   checkAvailableParameters @0 Query -> Query.Result;
   getAllAvailableParameters @1 (onlyRawData :Bool) -> (mandatory :List(PropertyName), optional :List(PropertyName));
-  profilesAt @2 (coord :import "/geo.capnp".LatLonCoord, query :Query) -> (profiles :List(Profile));
+  closestProfilesAt @2 (coord :import "/geo.capnp".LatLonCoord, query :Query) -> (profiles :List(Profile));
+  streamAllProfiles @3 Query -> (allProfiles :Stream);
+  interface Stream @0xf4f8ab568ffbc939 {
+    nextProfiles @0 (maxCount :Int64 = 100) -> (profiles :List(Profile));
+  }
 }

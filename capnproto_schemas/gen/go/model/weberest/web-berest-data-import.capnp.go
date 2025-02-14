@@ -166,7 +166,7 @@ func (c DWLABImport_importData) AllocResults() (DWLABImport_importData_Results, 
 // DWLABImport_List is a list of DWLABImport.
 type DWLABImport_List = capnp.CapList[DWLABImport]
 
-// NewDWLABImport creates a new list of DWLABImport.
+// NewDWLABImport_List creates a new list of DWLABImport.
 func NewDWLABImport_List(s *capnp.Segment, sz int32) (DWLABImport_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[DWLABImport](l), err

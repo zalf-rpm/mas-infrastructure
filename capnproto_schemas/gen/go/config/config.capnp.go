@@ -166,7 +166,7 @@ func (c Service_nextConfig) AllocResults() (Service_nextConfig_Results, error) {
 // Service_List is a list of Service.
 type Service_List = capnp.CapList[Service]
 
-// NewService creates a new list of Service.
+// NewService_List creates a new list of Service.
 func NewService_List(s *capnp.Segment, sz int32) (Service_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[Service](l), err

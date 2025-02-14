@@ -6,7 +6,6 @@ import (
 	capnp "capnproto.org/go/capnp/v3"
 	text "capnproto.org/go/capnp/v3/encoding/text"
 	fc "capnproto.org/go/capnp/v3/flowcontrol"
-	schemas "capnproto.org/go/capnp/v3/schemas"
 	server "capnproto.org/go/capnp/v3/server"
 	context "context"
 )
@@ -166,7 +165,7 @@ func (c A_method) AllocResults() (A_method_Results, error) {
 // A_List is a list of A.
 type A_List = capnp.CapList[A]
 
-// NewA creates a new list of A.
+// NewA_List creates a new list of A.
 func NewA_List(s *capnp.Segment, sz int32) (A_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[A](l), err
@@ -334,33 +333,4 @@ type A_method_Results_Future struct{ *capnp.Future }
 func (f A_method_Results_Future) Struct() (A_method_Results, error) {
 	p, err := f.Future.Ptr()
 	return A_method_Results(p.Struct()), err
-}
-
-const schema_c4b468a2826bb79b = "x\xda\x128\xe0\xc0b\xc8\xab\xce\xc2\xc0\x14h\xc0\xca" +
-	"\xf6\xff}i\x96\xc1O\x0e\xc5y\x0c\x82\\\x8c\x0c\x0c" +
-	"\xac\x8c\xec\x0c\x0c\xc2?\x19O10\x0a\xffe\xb4g" +
-	"`\xfc\xef\x7fb\xf5\xe6\xfc\xff\xf3v1\x08r0\xff" +
-	"\x9f\xbd=\xbbiQ\xc6\x96#\x0c\x0c\x8c\xc2\xb2LA" +
-	"\xc2\x8aL \xe5\xb2L\xee\xc2\xae \xd6\xff\xef\xaa\x19" +
-	"\x0f\x0f\xbcd;\x8al\x98.\xd3!\x06Fa]&" +
-	"{\x86\x94\xff\x89z\xc9\x89\x05y\x05VL\x8ez\xb9" +
-	"\xa9%\x19\xf9)*A\xa9\xc5\xa59%\xc5\x0c\x0c\x81" +
-	",\xcc,\x0c\x0c,\x8c\x0c\x0c\x82\xbcJ\x0c\x0c\x81\x1c" +
-	"\xcc\x8c\x81\"L\x8c\xecE\xa9\xc5\x8c<\x0cL\x8c<" +
-	"\x0c\x8cp\xed\x0c\x8c\x8e\x01\x8c\x8c\x81,\xcc\xacHv" +
-	"2\xc2|\"(h\xc5\xc0$\xc8\xcan\x0f\xb1\xc2\x81" +
-	"1\x80\x91\x11\x8b\xcd\x01\x89E\x89\xb9\xc5(\xf6\x1a!" +
-	"\xec\x95/\x00I\xc3l\x06\x04\x00\x00\xff\xff)\xb1K" +
-	"\xb5"
-
-func RegisterSchema(reg *schemas.Registry) {
-	reg.Register(&schemas.Schema{
-		String: schema_c4b468a2826bb79b,
-		Nodes: []uint64{
-			0x9e2108f9306a75ef,
-			0xba9eff6fb3abc84f,
-			0xc506e9c0e16825f7,
-		},
-		Compressed: true,
-	})
 }

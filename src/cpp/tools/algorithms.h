@@ -358,12 +358,10 @@ int createRandomNumber();
 		int rsi = roundShiftedInt(value, roundToDigits);
 		
 		//round to full integers or digits after the decimal point
-		if(roundToDigits >= 0) 
-			return shiftDecimalPointLeft<ReturnType>(rsi, uint8_t(roundToDigits));
+		if(roundToDigits >= 0) return shiftDecimalPointLeft<ReturnType>(rsi, uint8_t(roundToDigits));
 		
 		//round to full 100s
-		if(roundToDigits < -1) 
-			return shiftDecimalPointRight<ReturnType>(rsi, uint8_t(-roundToDigits));
+		if(roundToDigits < -1) return shiftDecimalPointRight<ReturnType>(rsi, uint8_t(-roundToDigits));
 		
 		//round to full 10s
 		return ReturnType(rsi);

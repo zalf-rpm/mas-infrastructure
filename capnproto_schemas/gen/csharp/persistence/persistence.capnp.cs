@@ -686,6 +686,142 @@ namespace Mas.Schema.Persistence
         }
     }
 
+    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x9fb3bdfad147ca3aUL), Proxy(typeof(Heartbeat_Proxy)), Skeleton(typeof(Heartbeat_Skeleton))]
+    public interface IHeartbeat : IDisposable
+    {
+        Task Beat(CancellationToken cancellationToken_ = default);
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x9fb3bdfad147ca3aUL)]
+    public class Heartbeat_Proxy : Proxy, IHeartbeat
+    {
+        public async Task Beat(CancellationToken cancellationToken_ = default)
+        {
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Persistence.Heartbeat.Params_Beat.WRITER>();
+            var arg_ = new Mas.Schema.Persistence.Heartbeat.Params_Beat()
+            {};
+            arg_?.serialize(in_);
+            using (var d_ = await Call(11507750357812365882UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
+            {
+                var r_ = CapnpSerializable.Create<Mas.Schema.Persistence.Heartbeat.Result_Beat>(d_);
+                return;
+            }
+        }
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x9fb3bdfad147ca3aUL)]
+    public class Heartbeat_Skeleton : Skeleton<IHeartbeat>
+    {
+        public Heartbeat_Skeleton()
+        {
+            SetMethodTable(Beat);
+        }
+
+        public override ulong InterfaceId => 11507750357812365882UL;
+        async Task<AnswerOrCounterquestion> Beat(DeserializerState d_, CancellationToken cancellationToken_)
+        {
+            using (d_)
+            {
+                await Impl.Beat(cancellationToken_);
+                var s_ = SerializerState.CreateForRpc<Mas.Schema.Persistence.Heartbeat.Result_Beat.WRITER>();
+                return s_;
+            }
+        }
+    }
+
+    public static class Heartbeat
+    {
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x8ab68adabfa134caUL)]
+        public class Params_Beat : ICapnpSerializable
+        {
+            public const UInt64 typeId = 0x8ab68adabfa134caUL;
+            void ICapnpSerializable.Deserialize(DeserializerState arg_)
+            {
+                var reader = READER.create(arg_);
+                applyDefaults();
+            }
+
+            public void serialize(WRITER writer)
+            {
+            }
+
+            void ICapnpSerializable.Serialize(SerializerState arg_)
+            {
+                serialize(arg_.Rewrap<WRITER>());
+            }
+
+            public void applyDefaults()
+            {
+            }
+
+            public struct READER
+            {
+                readonly DeserializerState ctx;
+                public READER(DeserializerState ctx)
+                {
+                    this.ctx = ctx;
+                }
+
+                public static READER create(DeserializerState ctx) => new READER(ctx);
+                public static implicit operator DeserializerState(READER reader) => reader.ctx;
+                public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
+            }
+
+            public class WRITER : SerializerState
+            {
+                public WRITER()
+                {
+                    this.SetStruct(0, 0);
+                }
+            }
+        }
+
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xf43682c2a6e815f8UL)]
+        public class Result_Beat : ICapnpSerializable
+        {
+            public const UInt64 typeId = 0xf43682c2a6e815f8UL;
+            void ICapnpSerializable.Deserialize(DeserializerState arg_)
+            {
+                var reader = READER.create(arg_);
+                applyDefaults();
+            }
+
+            public void serialize(WRITER writer)
+            {
+            }
+
+            void ICapnpSerializable.Serialize(SerializerState arg_)
+            {
+                serialize(arg_.Rewrap<WRITER>());
+            }
+
+            public void applyDefaults()
+            {
+            }
+
+            public struct READER
+            {
+                readonly DeserializerState ctx;
+                public READER(DeserializerState ctx)
+                {
+                    this.ctx = ctx;
+                }
+
+                public static READER create(DeserializerState ctx) => new READER(ctx);
+                public static implicit operator DeserializerState(READER reader) => reader.ctx;
+                public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
+            }
+
+            public class WRITER : SerializerState
+            {
+                public WRITER()
+                {
+                    this.SetStruct(0, 0);
+                }
+            }
+        }
+    }
+
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xc1a7daa0dc36cb65UL), Proxy(typeof(Persistent_Proxy)), Skeleton(typeof(Persistent_Skeleton))]
     public interface IPersistent : IDisposable
     {
@@ -1306,13 +1442,13 @@ namespace Mas.Schema.Persistence
         [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xb0caf775704690b2UL), Proxy(typeof(Registrar_Proxy)), Skeleton(typeof(Registrar_Skeleton))]
         public interface IRegistrar : IDisposable
         {
-            Task<(Mas.Schema.Persistence.HostPortResolver.Registrar.IHeartbeat, uint)> Register(Mas.Schema.Persistence.HostPortResolver.Registrar.RegisterParams arg_, CancellationToken cancellationToken_ = default);
+            Task<(Mas.Schema.Persistence.IHeartbeat, uint)> Register(Mas.Schema.Persistence.HostPortResolver.Registrar.RegisterParams arg_, CancellationToken cancellationToken_ = default);
         }
 
         [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xb0caf775704690b2UL)]
         public class Registrar_Proxy : Proxy, IRegistrar
         {
-            public Task<(Mas.Schema.Persistence.HostPortResolver.Registrar.IHeartbeat, uint)> Register(Mas.Schema.Persistence.HostPortResolver.Registrar.RegisterParams arg_, CancellationToken cancellationToken_ = default)
+            public Task<(Mas.Schema.Persistence.IHeartbeat, uint)> Register(Mas.Schema.Persistence.HostPortResolver.Registrar.RegisterParams arg_, CancellationToken cancellationToken_ = default)
             {
                 var in_ = SerializerState.CreateForRpc<Mas.Schema.Persistence.HostPortResolver.Registrar.RegisterParams.WRITER>();
                 arg_?.serialize(in_);
@@ -1357,142 +1493,6 @@ namespace Mas.Schema.Persistence
 
         public static class Registrar
         {
-            [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x87de92d2d68df26fUL), Proxy(typeof(Heartbeat_Proxy)), Skeleton(typeof(Heartbeat_Skeleton))]
-            public interface IHeartbeat : IDisposable
-            {
-                Task Beat(CancellationToken cancellationToken_ = default);
-            }
-
-            [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x87de92d2d68df26fUL)]
-            public class Heartbeat_Proxy : Proxy, IHeartbeat
-            {
-                public async Task Beat(CancellationToken cancellationToken_ = default)
-                {
-                    var in_ = SerializerState.CreateForRpc<Mas.Schema.Persistence.HostPortResolver.Registrar.Heartbeat.Params_Beat.WRITER>();
-                    var arg_ = new Mas.Schema.Persistence.HostPortResolver.Registrar.Heartbeat.Params_Beat()
-                    {};
-                    arg_?.serialize(in_);
-                    using (var d_ = await Call(9790424074190451311UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
-                    {
-                        var r_ = CapnpSerializable.Create<Mas.Schema.Persistence.HostPortResolver.Registrar.Heartbeat.Result_Beat>(d_);
-                        return;
-                    }
-                }
-            }
-
-            [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x87de92d2d68df26fUL)]
-            public class Heartbeat_Skeleton : Skeleton<IHeartbeat>
-            {
-                public Heartbeat_Skeleton()
-                {
-                    SetMethodTable(Beat);
-                }
-
-                public override ulong InterfaceId => 9790424074190451311UL;
-                async Task<AnswerOrCounterquestion> Beat(DeserializerState d_, CancellationToken cancellationToken_)
-                {
-                    using (d_)
-                    {
-                        await Impl.Beat(cancellationToken_);
-                        var s_ = SerializerState.CreateForRpc<Mas.Schema.Persistence.HostPortResolver.Registrar.Heartbeat.Result_Beat.WRITER>();
-                        return s_;
-                    }
-                }
-            }
-
-            public static class Heartbeat
-            {
-                [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xebff70497e0ba555UL)]
-                public class Params_Beat : ICapnpSerializable
-                {
-                    public const UInt64 typeId = 0xebff70497e0ba555UL;
-                    void ICapnpSerializable.Deserialize(DeserializerState arg_)
-                    {
-                        var reader = READER.create(arg_);
-                        applyDefaults();
-                    }
-
-                    public void serialize(WRITER writer)
-                    {
-                    }
-
-                    void ICapnpSerializable.Serialize(SerializerState arg_)
-                    {
-                        serialize(arg_.Rewrap<WRITER>());
-                    }
-
-                    public void applyDefaults()
-                    {
-                    }
-
-                    public struct READER
-                    {
-                        readonly DeserializerState ctx;
-                        public READER(DeserializerState ctx)
-                        {
-                            this.ctx = ctx;
-                        }
-
-                        public static READER create(DeserializerState ctx) => new READER(ctx);
-                        public static implicit operator DeserializerState(READER reader) => reader.ctx;
-                        public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                    }
-
-                    public class WRITER : SerializerState
-                    {
-                        public WRITER()
-                        {
-                            this.SetStruct(0, 0);
-                        }
-                    }
-                }
-
-                [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x9510c22fa544a65eUL)]
-                public class Result_Beat : ICapnpSerializable
-                {
-                    public const UInt64 typeId = 0x9510c22fa544a65eUL;
-                    void ICapnpSerializable.Deserialize(DeserializerState arg_)
-                    {
-                        var reader = READER.create(arg_);
-                        applyDefaults();
-                    }
-
-                    public void serialize(WRITER writer)
-                    {
-                    }
-
-                    void ICapnpSerializable.Serialize(SerializerState arg_)
-                    {
-                        serialize(arg_.Rewrap<WRITER>());
-                    }
-
-                    public void applyDefaults()
-                    {
-                    }
-
-                    public struct READER
-                    {
-                        readonly DeserializerState ctx;
-                        public READER(DeserializerState ctx)
-                        {
-                            this.ctx = ctx;
-                        }
-
-                        public static READER create(DeserializerState ctx) => new READER(ctx);
-                        public static implicit operator DeserializerState(READER reader) => reader.ctx;
-                        public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                    }
-
-                    public class WRITER : SerializerState
-                    {
-                        public WRITER()
-                        {
-                            this.SetStruct(0, 0);
-                        }
-                    }
-                }
-            }
-
             [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xbf018f62ff460d0fUL)]
             public class RegisterParams : ICapnpSerializable
             {
@@ -1625,7 +1625,7 @@ namespace Mas.Schema.Persistence
                 {
                 }
 
-                public Mas.Schema.Persistence.HostPortResolver.Registrar.IHeartbeat Heartbeat
+                public Mas.Schema.Persistence.IHeartbeat Heartbeat
                 {
                     get;
                     set;
@@ -1648,7 +1648,7 @@ namespace Mas.Schema.Persistence
                     public static READER create(DeserializerState ctx) => new READER(ctx);
                     public static implicit operator DeserializerState(READER reader) => reader.ctx;
                     public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                    public Mas.Schema.Persistence.HostPortResolver.Registrar.IHeartbeat Heartbeat => ctx.ReadCap<Mas.Schema.Persistence.HostPortResolver.Registrar.IHeartbeat>(0);
+                    public Mas.Schema.Persistence.IHeartbeat Heartbeat => ctx.ReadCap<Mas.Schema.Persistence.IHeartbeat>(0);
                     public uint SecsHeartbeatInterval => ctx.ReadDataUInt(0UL, 0U);
                 }
 
@@ -1659,9 +1659,9 @@ namespace Mas.Schema.Persistence
                         this.SetStruct(1, 1);
                     }
 
-                    public Mas.Schema.Persistence.HostPortResolver.Registrar.IHeartbeat Heartbeat
+                    public Mas.Schema.Persistence.IHeartbeat Heartbeat
                     {
-                        get => ReadCap<Mas.Schema.Persistence.HostPortResolver.Registrar.IHeartbeat>(0);
+                        get => ReadCap<Mas.Schema.Persistence.IHeartbeat>(0);
                         set => LinkObject(0, value);
                     }
 
@@ -1807,6 +1807,253 @@ namespace Mas.Schema.Persistence
                     set => this.WriteData(0UL, value, (ushort)0);
                 }
             }
+        }
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x8f9c2c0a602f27edUL), Proxy(typeof(Gateway_Proxy)), Skeleton(typeof(Gateway_Skeleton))]
+    public interface IGateway : Mas.Schema.Common.IIdentifiable, Mas.Schema.Persistence.IRestorer
+    {
+        Task<Mas.Schema.Persistence.Gateway.RegResults> Register(BareProxy cap, CancellationToken cancellationToken_ = default);
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x8f9c2c0a602f27edUL)]
+    public class Gateway_Proxy : Proxy, IGateway
+    {
+        public Task<Mas.Schema.Persistence.Gateway.RegResults> Register(BareProxy cap, CancellationToken cancellationToken_ = default)
+        {
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Persistence.Gateway.Params_Register.WRITER>();
+            var arg_ = new Mas.Schema.Persistence.Gateway.Params_Register()
+            {Cap = cap};
+            arg_?.serialize(in_);
+            return Impatient.MakePipelineAware(Call(10348194466865555437UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_), d_ =>
+            {
+                using (d_)
+                {
+                    var r_ = CapnpSerializable.Create<Mas.Schema.Persistence.Gateway.RegResults>(d_);
+                    return r_;
+                }
+            }
+
+            );
+        }
+
+        public Task<BareProxy> Restore(Mas.Schema.Persistence.Restorer.RestoreParams arg_, CancellationToken cancellationToken_ = default)
+        {
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Persistence.Restorer.RestoreParams.WRITER>();
+            arg_?.serialize(in_);
+            return Impatient.MakePipelineAware(Call(11508422749279825468UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_), d_ =>
+            {
+                using (d_)
+                {
+                    var r_ = CapnpSerializable.Create<Mas.Schema.Persistence.Restorer.Result_Restore>(d_);
+                    return (r_.Cap);
+                }
+            }
+
+            );
+        }
+
+        public async Task<Mas.Schema.Common.IdInformation> Info(CancellationToken cancellationToken_ = default)
+        {
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Common.Identifiable.Params_Info.WRITER>();
+            var arg_ = new Mas.Schema.Common.Identifiable.Params_Info()
+            {};
+            arg_?.serialize(in_);
+            using (var d_ = await Call(12875740530987518165UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
+            {
+                var r_ = CapnpSerializable.Create<Mas.Schema.Common.IdInformation>(d_);
+                return r_;
+            }
+        }
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x8f9c2c0a602f27edUL)]
+    public class Gateway_Skeleton : Skeleton<IGateway>
+    {
+        public Gateway_Skeleton()
+        {
+            SetMethodTable(Register);
+        }
+
+        public override ulong InterfaceId => 10348194466865555437UL;
+        Task<AnswerOrCounterquestion> Register(DeserializerState d_, CancellationToken cancellationToken_)
+        {
+            using (d_)
+            {
+                var in_ = CapnpSerializable.Create<Mas.Schema.Persistence.Gateway.Params_Register>(d_);
+                return Impatient.MaybeTailCall(Impl.Register(in_.Cap, cancellationToken_), r_ =>
+                {
+                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Persistence.Gateway.RegResults.WRITER>();
+                    r_.serialize(s_);
+                    return s_;
+                }
+
+                );
+            }
+        }
+    }
+
+    public static class Gateway
+    {
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xa232c65d79e97faaUL)]
+        public class RegResults : ICapnpSerializable
+        {
+            public const UInt64 typeId = 0xa232c65d79e97faaUL;
+            void ICapnpSerializable.Deserialize(DeserializerState arg_)
+            {
+                var reader = READER.create(arg_);
+                SturdyRef = CapnpSerializable.Create<Mas.Schema.Persistence.SturdyRef>(reader.SturdyRef);
+                Heartbeat = reader.Heartbeat;
+                SecsHeartbeatInterval = reader.SecsHeartbeatInterval;
+                applyDefaults();
+            }
+
+            public void serialize(WRITER writer)
+            {
+                SturdyRef?.serialize(writer.SturdyRef);
+                writer.Heartbeat = Heartbeat;
+                writer.SecsHeartbeatInterval = SecsHeartbeatInterval;
+            }
+
+            void ICapnpSerializable.Serialize(SerializerState arg_)
+            {
+                serialize(arg_.Rewrap<WRITER>());
+            }
+
+            public void applyDefaults()
+            {
+            }
+
+            public Mas.Schema.Persistence.SturdyRef SturdyRef
+            {
+                get;
+                set;
+            }
+
+            public Mas.Schema.Persistence.IHeartbeat Heartbeat
+            {
+                get;
+                set;
+            }
+
+            public uint SecsHeartbeatInterval
+            {
+                get;
+                set;
+            }
+
+            public struct READER
+            {
+                readonly DeserializerState ctx;
+                public READER(DeserializerState ctx)
+                {
+                    this.ctx = ctx;
+                }
+
+                public static READER create(DeserializerState ctx) => new READER(ctx);
+                public static implicit operator DeserializerState(READER reader) => reader.ctx;
+                public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
+                public Mas.Schema.Persistence.SturdyRef.READER SturdyRef => ctx.ReadStruct(0, Mas.Schema.Persistence.SturdyRef.READER.create);
+                public bool HasSturdyRef => ctx.IsStructFieldNonNull(0);
+                public Mas.Schema.Persistence.IHeartbeat Heartbeat => ctx.ReadCap<Mas.Schema.Persistence.IHeartbeat>(1);
+                public uint SecsHeartbeatInterval => ctx.ReadDataUInt(0UL, 0U);
+            }
+
+            public class WRITER : SerializerState
+            {
+                public WRITER()
+                {
+                    this.SetStruct(1, 2);
+                }
+
+                public Mas.Schema.Persistence.SturdyRef.WRITER SturdyRef
+                {
+                    get => BuildPointer<Mas.Schema.Persistence.SturdyRef.WRITER>(0);
+                    set => Link(0, value);
+                }
+
+                public Mas.Schema.Persistence.IHeartbeat Heartbeat
+                {
+                    get => ReadCap<Mas.Schema.Persistence.IHeartbeat>(1);
+                    set => LinkObject(1, value);
+                }
+
+                public uint SecsHeartbeatInterval
+                {
+                    get => this.ReadDataUInt(0UL, 0U);
+                    set => this.WriteData(0UL, value, 0U);
+                }
+            }
+        }
+
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xc78c1529af44ababUL)]
+        public class Params_Register : ICapnpSerializable
+        {
+            public const UInt64 typeId = 0xc78c1529af44ababUL;
+            void ICapnpSerializable.Deserialize(DeserializerState arg_)
+            {
+                var reader = READER.create(arg_);
+                Cap = reader.Cap;
+                applyDefaults();
+            }
+
+            public void serialize(WRITER writer)
+            {
+                writer.Cap = Cap;
+            }
+
+            void ICapnpSerializable.Serialize(SerializerState arg_)
+            {
+                serialize(arg_.Rewrap<WRITER>());
+            }
+
+            public void applyDefaults()
+            {
+            }
+
+            public BareProxy Cap
+            {
+                get;
+                set;
+            }
+
+            public struct READER
+            {
+                readonly DeserializerState ctx;
+                public READER(DeserializerState ctx)
+                {
+                    this.ctx = ctx;
+                }
+
+                public static READER create(DeserializerState ctx) => new READER(ctx);
+                public static implicit operator DeserializerState(READER reader) => reader.ctx;
+                public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
+                public BareProxy Cap => ctx.ReadCap(0);
+            }
+
+            public class WRITER : SerializerState
+            {
+                public WRITER()
+                {
+                    this.SetStruct(0, 1);
+                }
+
+                public BareProxy Cap
+                {
+                    get => ReadCap<BareProxy>(0);
+                    set => LinkObject(0, value);
+                }
+            }
+        }
+    }
+
+    public static partial class PipeliningSupportExtensions_persistence
+    {
+        static readonly MemberAccessPath Path_mas_schema_persistence_Gateway_register_Heartbeat = new MemberAccessPath(1U);
+        public static Mas.Schema.Persistence.IHeartbeat Heartbeat(this Task<Mas.Schema.Persistence.Gateway.RegResults> task)
+        {
+            async Task<IDisposable> AwaitProxy() => (await task).Heartbeat;
+            return (Mas.Schema.Persistence.IHeartbeat)CapabilityReflection.CreateProxy<Mas.Schema.Persistence.IHeartbeat>(Impatient.Access(task, Path_mas_schema_persistence_Gateway_register_Heartbeat, AwaitProxy()));
         }
     }
 }

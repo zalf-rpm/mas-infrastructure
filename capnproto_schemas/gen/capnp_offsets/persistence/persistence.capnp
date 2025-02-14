@@ -23,24 +23,21 @@ struct VatPath @0xd9eccdf2dbc48087 {  # 0 bytes, 2 ptrs
   id @0 :VatId;  # ptr[0]
   address @1 :Address;  # ptr[1]
 }
-struct SturdyRef @0x886d68271d83de4d {  # 8 bytes, 1 ptrs
-  union {  # tag bits [0, 16)
-    transient @0 :Transient;  # ptr[0], union tag = 0
-    stored @1 :Stored;  # ptr[0], union tag = 1
-  }
+struct SturdyRef @0x886d68271d83de4d {  # 0 bytes, 2 ptrs
+  vat @0 :VatPath;  # ptr[0]
+  localRef @1 :Token;  # ptr[1]
   struct Owner @0xfdd799ed60c87723 {  # 0 bytes, 1 ptrs
     guid @0 :Text;  # ptr[0]
   }
-  struct Transient @0xa42bd461f2a8a3c8 {  # 0 bytes, 2 ptrs
-    vat @0 :VatPath;  # ptr[0]
-    localRef @1 :AnyPointer;  # ptr[1]
+  struct Token @0xfa412bb47f11b488 {  # 8 bytes, 1 ptrs
+    union {  # tag bits [0, 16)
+      text @0 :Text;  # ptr[0], union tag = 0
+      data @1 :Data;  # ptr[0], union tag = 1
+    }
   }
-  struct Stored @0xcbe679a401315eb8 {  # 32 bytes, 0 ptrs
-    key0 @0 :UInt64;  # bits[0, 64)
-    key1 @1 :UInt64;  # bits[64, 128)
-    key2 @2 :UInt64;  # bits[128, 192)
-    key3 @3 :UInt64;  # bits[192, 256)
-  }
+}
+interface Heartbeat @0x9fb3bdfad147ca3a {
+  beat @0 () -> ();
 }
 interface Persistent @0xc1a7daa0dc36cb65 {
   save @0 SaveParams -> SaveResults;
@@ -58,22 +55,27 @@ interface Persistent @0xc1a7daa0dc36cb65 {
 interface Restorer @0x9fb6218427d92e3c {
   restore @0 RestoreParams -> (cap :Capability);
   struct RestoreParams @0xc541e5764a37d73a {  # 0 bytes, 2 ptrs
-    localRef @0 :AnyPointer;  # ptr[0]
-    sealedFor @1 :SturdyRef.Owner;  # ptr[1]
+    localRef @0 :SturdyRef.Token;  # ptr[0]
+    sealedBy @1 :SturdyRef.Owner;  # ptr[1]
   }
 }
 interface HostPortResolver @0xaa8d91fab6d01d9f superclasses(import "/common.capnp".Identifiable, Restorer) {
-  resolve @0 (id :Text) -> (host :Text, port :UInt16);
+  resolve @0 (id :Text) -> (host :Text, port :UInt16) $import "/capnp/go.capnp".name("ResolveIdent");
   interface Registrar @0xb0caf775704690b2 {
     register @0 RegisterParams -> (heartbeat :Heartbeat, secsHeartbeatInterval :UInt32);
-    interface Heartbeat @0x87de92d2d68df26f {
-      beat @0 () -> ();
-    }
     struct RegisterParams @0xbf018f62ff460d0f {  # 8 bytes, 3 ptrs
       base64VatId @0 :Text;  # ptr[0]
       host @1 :Text;  # ptr[1]
       port @2 :UInt16;  # bits[0, 16)
       alias @3 :Text;  # ptr[2]
     }
+  }
+}
+interface Gateway @0x8f9c2c0a602f27ed superclasses(import "/common.capnp".Identifiable, Restorer) {
+  register @0 (cap :Capability) -> RegResults;
+  struct RegResults @0xa232c65d79e97faa {  # 8 bytes, 2 ptrs
+    sturdyRef @0 :SturdyRef;  # ptr[0]
+    heartbeat @1 :Heartbeat;  # ptr[1]
+    secsHeartbeatInterval @2 :UInt32;  # bits[0, 32)
   }
 }

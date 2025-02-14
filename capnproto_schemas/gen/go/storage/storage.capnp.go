@@ -442,7 +442,7 @@ func (c Store_importContainer) AllocResults() (Store_importContainer_Results, er
 // Store_List is a list of Store.
 type Store_List = capnp.CapList[Store]
 
-// NewStore creates a new list of Store.
+// NewStore_List creates a new list of Store.
 func NewStore_List(s *capnp.Segment, sz int32) (Store_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[Store](l), err
@@ -977,7 +977,7 @@ func (c Store_Container_addEntry) AllocResults() (Store_Container_addEntry_Resul
 // Store_Container_List is a list of Store_Container.
 type Store_Container_List = capnp.CapList[Store_Container]
 
-// NewStore_Container creates a new list of Store_Container.
+// NewStore_Container_List creates a new list of Store_Container.
 func NewStore_Container_List(s *capnp.Segment, sz int32) (Store_Container_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[Store_Container](l), err
@@ -1240,7 +1240,7 @@ func (c Store_Container_Entry_setValue) AllocResults() (Store_Container_Entry_se
 // Store_Container_Entry_List is a list of Store_Container_Entry.
 type Store_Container_Entry_List = capnp.CapList[Store_Container_Entry]
 
-// NewStore_Container_Entry creates a new list of Store_Container_Entry.
+// NewStore_Container_Entry_List creates a new list of Store_Container_Entry.
 func NewStore_Container_Entry_List(s *capnp.Segment, sz int32) (Store_Container_Entry_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[Store_Container_Entry](l), err

@@ -339,7 +339,7 @@ func (c Crop_species) AllocResults() (Crop_species_Results, error) {
 // Crop_List is a list of Crop.
 type Crop_List = capnp.CapList[Crop]
 
-// NewCrop creates a new list of Crop.
+// NewCrop_List creates a new list of Crop.
 func NewCrop_List(s *capnp.Segment, sz int32) (Crop_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[Crop](l), err
@@ -1041,7 +1041,7 @@ func Service_Methods(methods []server.Method, s Service_Server) []server.Method 
 // Service_List is a list of Service.
 type Service_List = capnp.CapList[Service]
 
-// NewService creates a new list of Service.
+// NewService_List creates a new list of Service.
 func NewService_List(s *capnp.Segment, sz int32) (Service_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[Service](l), err

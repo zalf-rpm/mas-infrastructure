@@ -405,7 +405,7 @@ func (c Admin_updateIdentity) AllocResults() (Admin_updateIdentity_Results, erro
 // Admin_List is a list of Admin.
 type Admin_List = capnp.CapList[Admin]
 
-// NewAdmin creates a new list of Admin.
+// NewAdmin_List creates a new list of Admin.
 func NewAdmin_List(s *capnp.Segment, sz int32) (Admin_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[Admin](l), err
@@ -1324,7 +1324,7 @@ func (c SimpleFactory_create) AllocResults() (SimpleFactory_create_Results, erro
 // SimpleFactory_List is a list of SimpleFactory.
 type SimpleFactory_List = capnp.CapList[SimpleFactory]
 
-// NewSimpleFactory creates a new list of SimpleFactory.
+// NewSimpleFactory_List creates a new list of SimpleFactory.
 func NewSimpleFactory_List(s *capnp.Segment, sz int32) (SimpleFactory_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[SimpleFactory](l), err
@@ -1723,7 +1723,7 @@ func (c Factory_serviceInterfaceNames) AllocResults() (Factory_serviceInterfaceN
 // Factory_List is a list of Factory.
 type Factory_List = capnp.CapList[Factory]
 
-// NewFactory creates a new list of Factory.
+// NewFactory_List creates a new list of Factory.
 func NewFactory_List(s *capnp.Segment, sz int32) (Factory_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[Factory](l), err
@@ -2272,7 +2272,7 @@ func (c Stopable_stop) AllocResults() (Stopable_stop_Results, error) {
 // Stopable_List is a list of Stopable.
 type Stopable_List = capnp.CapList[Stopable]
 
-// NewStopable creates a new list of Stopable.
+// NewStopable_List creates a new list of Stopable.
 func NewStopable_List(s *capnp.Segment, sz int32) (Stopable_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[Stopable](l), err

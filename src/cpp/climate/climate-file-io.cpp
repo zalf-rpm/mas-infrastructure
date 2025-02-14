@@ -179,26 +179,27 @@ Climate::readClimateDataFromCSVFileViaHeaders(std::string pathToFile,
   pathToFile = fixSystemSeparator(pathToFile);
   if (pathToFile.substr(pathToFile.size() - 3) == ".gz") {
     auto fs = kj::newDiskFilesystem();
-    auto file = isAbsolutePath(pathToFile)
-                ? fs->getRoot().openFile(fs->getCurrentPath().eval(pathToFile))
-                : fs->getRoot().openFile(kj::Path::parse(pathToFile));
+    KJ_IF_MAYBE(file, isAbsolutePath(pathToFile)
+                      ? fs->getRoot().tryOpenFile(fs->getCurrentPath().eval(pathToFile))
+                      : fs->getRoot().tryOpenFile(kj::Path::parse(pathToFile))) {
 #ifdef _WIN32
-    KJ_IF_MAYBE(fh, file->getWin32Handle()){
-      kj::HandleInputStream his(*fh);
-      kj::GzipInputStream gis(his);
-      auto all = gis.readAllText();
-      std::istringstream iss(all.cStr());
-      return readClimateDataFromCSVInputStreamViaHeaders(iss, options, strictDateChecking);
-    }
+      KJ_IF_MAYBE(fh, file->get()->getWin32Handle()){
+        kj::HandleInputStream his(*fh);
+        kj::GzipInputStream gis(his);
+        auto all = gis.readAllText();
+        std::istringstream iss(all.cStr());
+        return readClimateDataFromCSVInputStreamViaHeaders(iss, options, strictDateChecking);
+      }
 #else
-    KJ_IF_MAYBE(fd, file->getFd()) {
-      kj::FdInputStream fis(*fd);
-      kj::GzipInputStream gis(fis);
-      auto all = gis.readAllText();
-      std::istringstream iss(all.cStr());
-      return readClimateDataFromCSVInputStreamViaHeaders(iss, options, strictDateChecking);
-    }
+      KJ_IF_MAYBE(fd, file->get()->getFd()) {
+        kj::FdInputStream fis(*fd);
+        kj::GzipInputStream gis(fis);
+        auto all = gis.readAllText();
+        std::istringstream iss(all.cStr());
+        return readClimateDataFromCSVInputStreamViaHeaders(iss, options, strictDateChecking);
+      }
 #endif
+    }
     stringstream oss;
     oss << "Could not open climate file " << pathToFile << ".";
     return {DataAccessor(), oss.str()};

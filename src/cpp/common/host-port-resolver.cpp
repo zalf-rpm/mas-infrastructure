@@ -37,7 +37,7 @@ using namespace mas::infrastructure::common;
 
 struct HostPortResolver::Impl {
 
-  struct Heartbeat final : public mas::schema::persistence::HostPortResolver::Registrar::Heartbeat::Server {
+  struct Heartbeat final : public mas::schema::persistence::Heartbeat::Server {
     kj::String base64VatId;
     kj::String alias;
     HostPortResolver::Impl &hprImpl;

@@ -49,6 +49,29 @@ type Persistable struct {
 	Cap func() capnp.Client
 }
 
+func NewPersistable(restorer *Restorer) *Persistable {
+	persitable := &Persistable{
+		saveChan: restorer.saveMsgC,
+	}
+	return persitable
+}
+
+func (p *Persistable) InitialSturdyRef() (*SturdyRef, error) {
+
+	saveMsg := &SaveMsg{
+		persitentObj: p,
+		owner:        "",
+		returnChan:   make(chan SaveAnswer),
+	}
+	p.saveChan <- saveMsg
+	answer := <-saveMsg.returnChan
+	if answer.err != nil {
+		return nil, answer.err
+	}
+	sr := answer.sr
+	return sr, nil
+}
+
 // Persistent_Server interface
 func (p *Persistable) Save(c context.Context, call persistence.Persistent_save) error {
 
@@ -194,10 +217,13 @@ type Restorer struct {
 	port                  uint16
 	restorerVatId         vatId
 	owner                 map[string]*[32]byte
+	forwardingHandlers    []ForwardingHandler
 
-	restoreMsgC chan *RestoreMsg
-	saveMsgC    chan *SaveMsg
-	deleteMsgC  chan *DeleteMsg
+	restoreMsgC              chan *RestoreMsg
+	saveMsgC                 chan *SaveMsg
+	deleteMsgC               chan *DeleteMsg
+	addOwnerMsgC             chan *AddOwnerMsg
+	AddForwardingHandlerMsgC chan *AddForwardingHandlerMsg
 }
 
 // NewRestorer creates a new Restorer
@@ -231,17 +257,20 @@ func NewRestorer(hostname string, port uint16) *Restorer {
 	}
 
 	restorer := Restorer{
-		issuedSturdyRefTokens: map[SturdyRefToken]func() capnp.Client{},
-		withdrawActions:       map[SturdyRefToken]*ReleaseSturdyRefAction{},
-		sign_pk:               pub,
-		sign_sk:               priv,
-		host:                  hostname,
-		port:                  port,
-		restorerVatId:         restorerVatId,
-		owner:                 map[string]*[32]byte{},
-		restoreMsgC:           make(chan *RestoreMsg),
-		saveMsgC:              make(chan *SaveMsg),
-		deleteMsgC:            make(chan *DeleteMsg),
+		issuedSturdyRefTokens:    map[SturdyRefToken]func() capnp.Client{},
+		withdrawActions:          map[SturdyRefToken]*ReleaseSturdyRefAction{},
+		sign_pk:                  pub,
+		sign_sk:                  priv,
+		host:                     hostname,
+		port:                     port,
+		restorerVatId:            restorerVatId,
+		owner:                    map[string]*[32]byte{},
+		forwardingHandlers:       []ForwardingHandler{},
+		restoreMsgC:              make(chan *RestoreMsg),
+		saveMsgC:                 make(chan *SaveMsg),
+		deleteMsgC:               make(chan *DeleteMsg),
+		addOwnerMsgC:             make(chan *AddOwnerMsg),
+		AddForwardingHandlerMsgC: make(chan *AddForwardingHandlerMsg),
 	}
 
 	go restorer.messageLoop()
@@ -284,12 +313,41 @@ func (r *Restorer) messageLoop() {
 			} else {
 				srToken = string(srTokenbytes)
 			}
-			if _, ok := r.issuedSturdyRefTokens[SturdyRefToken(srToken)]; !ok {
-				msg.returnChan <- RestoreAnswer{err: errors.New("no such token")}
-			} else {
-				cap := r.issuedSturdyRefTokens[SturdyRefToken(srToken)]()
+
+			if resolveFunc, ok := r.issuedSturdyRefTokens[SturdyRefToken(srToken)]; ok {
+				cap := resolveFunc()
 				msg.returnChan <- RestoreAnswer{cap: cap}
+			} else {
+				// check if the token can be resolved by a forwarding handler
+				found := false
+				for _, handler := range r.forwardingHandlers {
+					if handler.CanResolveSturdyRef(srToken) {
+						found = true
+						// actuall resolving of the token may take some time
+						// so we do it in a go routine
+						go func() {
+							cap, err := handler.ResolveSturdyRef(srToken)
+							if err != nil {
+								// if the handler can resolve the token but there is an error
+								msg.returnChan <- RestoreAnswer{err: err}
+							} else {
+								msg.returnChan <- RestoreAnswer{cap: cap}
+							}
+						}()
+						break
+					}
+				}
+				if !found {
+					msg.returnChan <- RestoreAnswer{err: errors.New("no such token")}
+				}
 			}
+		// add owner
+		case msg := <-r.addOwnerMsgC:
+			r.owner[msg.ownerGuid] = msg.ownerKey
+
+		// add forwarding handler
+		case msg := <-r.AddForwardingHandlerMsgC:
+			r.forwardingHandlers = append(r.forwardingHandlers, msg.handler)
 		}
 	}
 }
@@ -321,6 +379,15 @@ type SaveAnswer struct {
 type DeleteMsg struct {
 	srToken     string
 	unsaveToken string
+}
+
+type AddOwnerMsg struct {
+	ownerGuid string
+	ownerKey  *[32]byte
+}
+
+type AddForwardingHandlerMsg struct {
+	handler ForwardingHandler
 }
 
 // Restorer_Server interface
@@ -453,4 +520,29 @@ func (a *ReleaseSturdyRefAction) ReleaseSR(c context.Context, call persistence.P
 
 func (a *ReleaseSturdyRefAction) Save(c context.Context, call persistence.Persistent_save) error {
 	return a.persistable.Save(c, call)
+}
+
+func (r *Restorer) AddOwner(ownerGuid string, ownerKey *[32]byte) error {
+	if ownerGuid == "" {
+		return errors.New("owner guid is empty")
+	}
+	if ownerKey == nil {
+		return errors.New("owner key is nil")
+	}
+
+	r.addOwnerMsgC <- &AddOwnerMsg{ownerGuid: ownerGuid, ownerKey: ownerKey}
+	return nil
+}
+
+// interface for capability forwarding handler
+type ForwardingHandler interface {
+
+	// CanResolveSturdyRef checks if the SturdyRefToken can be resolved by this hSandler
+	CanResolveSturdyRef(srToken string) bool
+	// ResolveSturdyRef resolves a SturdyRefToken to a capability
+	ResolveSturdyRef(srToken string) (capnp.Client, error)
+}
+
+func (r *Restorer) AddForwardingHandler(handler ForwardingHandler) {
+	r.AddForwardingHandlerMsgC <- &AddForwardingHandlerMsg{handler: handler}
 }

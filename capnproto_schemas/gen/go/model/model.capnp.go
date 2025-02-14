@@ -638,7 +638,7 @@ func (c ClimateInstance_runSet) AllocResults() (ClimateInstance_runSet_Results, 
 // ClimateInstance_List is a list of ClimateInstance.
 type ClimateInstance_List = capnp.CapList[ClimateInstance]
 
-// NewClimateInstance creates a new list of ClimateInstance.
+// NewClimateInstance_List creates a new list of ClimateInstance.
 func NewClimateInstance_List(s *capnp.Segment, sz int32) (ClimateInstance_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[ClimateInstance](l), err
@@ -1401,7 +1401,7 @@ func (c EnvInstance_run) AllocResults() (EnvInstance_run_Results, error) {
 // EnvInstance_List is a list of EnvInstance.
 type EnvInstance_List = capnp.CapList[EnvInstance]
 
-// NewEnvInstance creates a new list of EnvInstance.
+// NewEnvInstance_List creates a new list of EnvInstance.
 func NewEnvInstance_List(s *capnp.Segment, sz int32) (EnvInstance_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[EnvInstance](l), err
@@ -1868,7 +1868,7 @@ func (c EnvInstanceProxy_registerEnvInstance) AllocResults() (EnvInstanceProxy_r
 // EnvInstanceProxy_List is a list of EnvInstanceProxy.
 type EnvInstanceProxy_List = capnp.CapList[EnvInstanceProxy]
 
-// NewEnvInstanceProxy creates a new list of EnvInstanceProxy.
+// NewEnvInstanceProxy_List creates a new list of EnvInstanceProxy.
 func NewEnvInstanceProxy_List(s *capnp.Segment, sz int32) (EnvInstanceProxy_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[EnvInstanceProxy](l), err
@@ -2029,7 +2029,7 @@ func (c EnvInstanceProxy_Unregister_unregister) AllocResults() (EnvInstanceProxy
 // EnvInstanceProxy_Unregister_List is a list of EnvInstanceProxy_Unregister.
 type EnvInstanceProxy_Unregister_List = capnp.CapList[EnvInstanceProxy_Unregister]
 
-// NewEnvInstanceProxy_Unregister creates a new list of EnvInstanceProxy_Unregister.
+// NewEnvInstanceProxy_Unregister_List creates a new list of EnvInstanceProxy_Unregister.
 func NewEnvInstanceProxy_Unregister_List(s *capnp.Segment, sz int32) (EnvInstanceProxy_Unregister_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[EnvInstanceProxy_Unregister](l), err
@@ -2633,7 +2633,7 @@ func (c InstanceFactory_newInstances) AllocResults() (InstanceFactory_newInstanc
 // InstanceFactory_List is a list of InstanceFactory.
 type InstanceFactory_List = capnp.CapList[InstanceFactory]
 
-// NewInstanceFactory creates a new list of InstanceFactory.
+// NewInstanceFactory_List creates a new list of InstanceFactory.
 func NewInstanceFactory_List(s *capnp.Segment, sz int32) (InstanceFactory_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[InstanceFactory](l), err

@@ -710,7 +710,7 @@ func (c Grid_unit) AllocResults() (Grid_unit_Results, error) {
 // Grid_List is a list of Grid.
 type Grid_List = capnp.CapList[Grid]
 
-// NewGrid creates a new list of Grid.
+// NewGrid_List creates a new list of Grid.
 func NewGrid_List(s *capnp.Segment, sz int32) (Grid_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[Grid](l), err
@@ -1480,7 +1480,7 @@ func (c Grid_Callback_sendCells) AllocResults() (Grid_Callback_sendCells_Results
 // Grid_Callback_List is a list of Grid_Callback.
 type Grid_Callback_List = capnp.CapList[Grid_Callback]
 
-// NewGrid_Callback creates a new list of Grid_Callback.
+// NewGrid_Callback_List creates a new list of Grid_Callback.
 func NewGrid_Callback_List(s *capnp.Segment, sz int32) (Grid_Callback_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[Grid_Callback](l), err

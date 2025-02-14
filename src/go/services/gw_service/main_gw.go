@@ -30,21 +30,24 @@ func main() {
 	var config *commonlib.Config
 	var err error
 	if *configGen {
+		gen := &ConfigConfiguratorImpl{}
 		// generate a config file if it does not exist yet
-		config, err = commonlib.ConfigGen(*configPath)
+		config, err = commonlib.ConfigGen(*configPath, gen)
 		if err != nil {
 			log.Fatal(err)
 		}
 		fmt.Println("Config file generated at:", *configPath)
 	} else {
-		config, err = commonlib.ReadConfig(*configPath)
+		config, err = commonlib.ReadConfig(*configPath, nil)
 		if err != nil {
 			log.Fatal(err)
 		}
 	}
 
 	// create a restorer
-	restorer := commonlib.NewRestorer("localhost", 0) // port 0 means: use any free port
+	host := config.Data["Service"].(map[string]interface{})["Host"].(string)
+	port := config.Data["Service"].(map[string]interface{})["Port"].(int)
+	restorer := commonlib.NewRestorer(host, uint16(port)) // port 0 means: use any free port
 	bootStrapSturdyRef := restorer.BootstrapSturdyRef()
 	// create a service
 	gs := newGridService(restorer)
@@ -99,4 +102,18 @@ func Serve(conn net.Conn, boot capnp.Client, errChan chan error, msgChan chan st
 	// Listen for calls, using  bootstrap interface.
 	rpc.NewConn(rpc.NewStreamTransport(conn), &rpc.Options{BootstrapClient: boot, Logger: &commonlib.ConnError{Out: errChan, Msg: msgChan}})
 	// this connection will be close when the client closes the connection
+}
+
+type ConfigConfiguratorImpl struct {
+}
+
+func (c *ConfigConfiguratorImpl) GetDefaultConfig() *commonlib.Config {
+	defaultConfig := commonlib.DefaultConfig()
+	defaultConfig.Data["Service"].(map[string]interface{})["Name"] = "Groundwater Service"
+	defaultConfig.Data["Service"].(map[string]interface{})["Id"] = "groundwater_service"
+	defaultConfig.Data["Service"].(map[string]interface{})["Port"] = 0 // use any free port
+	defaultConfig.Data["Service"].(map[string]interface{})["Host"] = "localhost"
+	defaultConfig.Data["Service"].(map[string]interface{})["Description"] = "a groundwater service"
+
+	return defaultConfig
 }

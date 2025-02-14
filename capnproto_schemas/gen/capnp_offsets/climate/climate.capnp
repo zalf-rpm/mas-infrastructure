@@ -46,6 +46,7 @@ struct EnsembleMember @0xc8caacd1cd5da434 {  # 8 bytes, 0 ptrs
   r @0 :UInt16;  # bits[0, 16)
   i @1 :UInt16;  # bits[16, 32)
   p @2 :UInt16;  # bits[32, 48)
+  f @3 :UInt16;  # bits[48, 64)
 }
 struct Metadata @0xfb36d2e966556db0 {  # 0 bytes, 2 ptrs
   entries @0 :List(Entry);  # ptr[0]
@@ -114,6 +115,9 @@ enum Element @0xe35760b4db5ab564 {
   o3 @12;
   et0 @13;
   dewpointTemp @14;
+  specificHumidity @15;
+  snowfallFlux @16;
+  surfaceDownwellingLongwaveRadiation @17;
 }
 struct Location @0x85ba7385f313fe19 {  # 8 bytes, 4 ptrs
   id @0 :import "/common.capnp".IdInformation;  # ptr[0]

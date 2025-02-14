@@ -1,4 +1,13 @@
 
+[Data]
+
+  [Data.Service]
+    Description = "a groundwater service"
+    Host = "localhost"
+    Id = "groundwater_service"
+    Name = "Groundwater Service"
+    Port = 0
+
 [TLS]
   cert_name = "config/server.crt"
   key_name = "config/server.key"

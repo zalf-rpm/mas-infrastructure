@@ -9,6 +9,7 @@ import (
 	schemas "capnproto.org/go/capnp/v3/schemas"
 	server "capnproto.org/go/capnp/v3/server"
 	context "context"
+	math "math"
 	strconv "strconv"
 )
 
@@ -285,7 +286,7 @@ func (c Identifiable_info) AllocResults() (IdInformation, error) {
 // Identifiable_List is a list of Identifiable.
 type Identifiable_List = capnp.CapList[Identifiable]
 
-// NewIdentifiable creates a new list of Identifiable.
+// NewIdentifiable_List creates a new list of Identifiable.
 func NewIdentifiable_List(s *capnp.Segment, sz int32) (Identifiable_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[Identifiable](l), err
@@ -502,6 +503,833 @@ func (f StructuredText_structure_Future) Struct() (StructuredText_structure, err
 	return StructuredText_structure(p.Struct()), err
 }
 
+type Value capnp.Struct
+type Value_Which uint16
+
+const (
+	Value_Which_f64   Value_Which = 0
+	Value_Which_f32   Value_Which = 1
+	Value_Which_i64   Value_Which = 2
+	Value_Which_i32   Value_Which = 3
+	Value_Which_i16   Value_Which = 4
+	Value_Which_i8    Value_Which = 5
+	Value_Which_ui64  Value_Which = 6
+	Value_Which_ui32  Value_Which = 7
+	Value_Which_ui16  Value_Which = 8
+	Value_Which_ui8   Value_Which = 9
+	Value_Which_b     Value_Which = 10
+	Value_Which_t     Value_Which = 11
+	Value_Which_d     Value_Which = 12
+	Value_Which_p     Value_Which = 13
+	Value_Which_cap   Value_Which = 14
+	Value_Which_lf64  Value_Which = 15
+	Value_Which_lf32  Value_Which = 16
+	Value_Which_li64  Value_Which = 17
+	Value_Which_li32  Value_Which = 18
+	Value_Which_li16  Value_Which = 19
+	Value_Which_li8   Value_Which = 20
+	Value_Which_lui64 Value_Which = 21
+	Value_Which_lui32 Value_Which = 22
+	Value_Which_lui16 Value_Which = 23
+	Value_Which_lui8  Value_Which = 24
+	Value_Which_lb    Value_Which = 25
+	Value_Which_lt    Value_Which = 26
+	Value_Which_ld    Value_Which = 27
+	Value_Which_lcap  Value_Which = 28
+)
+
+func (w Value_Which) String() string {
+	const s = "f64f32i64i32i16i8ui64ui32ui16ui8btdpcaplf64lf32li64li32li16li8lui64lui32lui16lui8lbltldlcap"
+	switch w {
+	case Value_Which_f64:
+		return s[0:3]
+	case Value_Which_f32:
+		return s[3:6]
+	case Value_Which_i64:
+		return s[6:9]
+	case Value_Which_i32:
+		return s[9:12]
+	case Value_Which_i16:
+		return s[12:15]
+	case Value_Which_i8:
+		return s[15:17]
+	case Value_Which_ui64:
+		return s[17:21]
+	case Value_Which_ui32:
+		return s[21:25]
+	case Value_Which_ui16:
+		return s[25:29]
+	case Value_Which_ui8:
+		return s[29:32]
+	case Value_Which_b:
+		return s[32:33]
+	case Value_Which_t:
+		return s[33:34]
+	case Value_Which_d:
+		return s[34:35]
+	case Value_Which_p:
+		return s[35:36]
+	case Value_Which_cap:
+		return s[36:39]
+	case Value_Which_lf64:
+		return s[39:43]
+	case Value_Which_lf32:
+		return s[43:47]
+	case Value_Which_li64:
+		return s[47:51]
+	case Value_Which_li32:
+		return s[51:55]
+	case Value_Which_li16:
+		return s[55:59]
+	case Value_Which_li8:
+		return s[59:62]
+	case Value_Which_lui64:
+		return s[62:67]
+	case Value_Which_lui32:
+		return s[67:72]
+	case Value_Which_lui16:
+		return s[72:77]
+	case Value_Which_lui8:
+		return s[77:81]
+	case Value_Which_lb:
+		return s[81:83]
+	case Value_Which_lt:
+		return s[83:85]
+	case Value_Which_ld:
+		return s[85:87]
+	case Value_Which_lcap:
+		return s[87:91]
+
+	}
+	return "Value_Which(" + strconv.FormatUint(uint64(w), 10) + ")"
+}
+
+// Value_TypeID is the unique identifier for the type Value.
+const Value_TypeID = 0xe17592335373b246
+
+func NewValue(s *capnp.Segment) (Value, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 16, PointerCount: 1})
+	return Value(st), err
+}
+
+func NewRootValue(s *capnp.Segment) (Value, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 16, PointerCount: 1})
+	return Value(st), err
+}
+
+func ReadRootValue(msg *capnp.Message) (Value, error) {
+	root, err := msg.Root()
+	return Value(root.Struct()), err
+}
+
+func (s Value) String() string {
+	str, _ := text.Marshal(0xe17592335373b246, capnp.Struct(s))
+	return str
+}
+
+func (s Value) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Value) DecodeFromPtr(p capnp.Ptr) Value {
+	return Value(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Value) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+
+func (s Value) Which() Value_Which {
+	return Value_Which(capnp.Struct(s).Uint16(8))
+}
+func (s Value) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Value) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Value) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+func (s Value) F64() float64 {
+	if capnp.Struct(s).Uint16(8) != 0 {
+		panic("Which() != f64")
+	}
+	return math.Float64frombits(capnp.Struct(s).Uint64(0))
+}
+
+func (s Value) SetF64(v float64) {
+	capnp.Struct(s).SetUint16(8, 0)
+	capnp.Struct(s).SetUint64(0, math.Float64bits(v))
+}
+
+func (s Value) F32() float32 {
+	if capnp.Struct(s).Uint16(8) != 1 {
+		panic("Which() != f32")
+	}
+	return math.Float32frombits(capnp.Struct(s).Uint32(0))
+}
+
+func (s Value) SetF32(v float32) {
+	capnp.Struct(s).SetUint16(8, 1)
+	capnp.Struct(s).SetUint32(0, math.Float32bits(v))
+}
+
+func (s Value) I64() int64 {
+	if capnp.Struct(s).Uint16(8) != 2 {
+		panic("Which() != i64")
+	}
+	return int64(capnp.Struct(s).Uint64(0))
+}
+
+func (s Value) SetI64(v int64) {
+	capnp.Struct(s).SetUint16(8, 2)
+	capnp.Struct(s).SetUint64(0, uint64(v))
+}
+
+func (s Value) I32() int32 {
+	if capnp.Struct(s).Uint16(8) != 3 {
+		panic("Which() != i32")
+	}
+	return int32(capnp.Struct(s).Uint32(0))
+}
+
+func (s Value) SetI32(v int32) {
+	capnp.Struct(s).SetUint16(8, 3)
+	capnp.Struct(s).SetUint32(0, uint32(v))
+}
+
+func (s Value) I16() int16 {
+	if capnp.Struct(s).Uint16(8) != 4 {
+		panic("Which() != i16")
+	}
+	return int16(capnp.Struct(s).Uint16(0))
+}
+
+func (s Value) SetI16(v int16) {
+	capnp.Struct(s).SetUint16(8, 4)
+	capnp.Struct(s).SetUint16(0, uint16(v))
+}
+
+func (s Value) I8() int8 {
+	if capnp.Struct(s).Uint16(8) != 5 {
+		panic("Which() != i8")
+	}
+	return int8(capnp.Struct(s).Uint8(0))
+}
+
+func (s Value) SetI8(v int8) {
+	capnp.Struct(s).SetUint16(8, 5)
+	capnp.Struct(s).SetUint8(0, uint8(v))
+}
+
+func (s Value) Ui64() uint64 {
+	if capnp.Struct(s).Uint16(8) != 6 {
+		panic("Which() != ui64")
+	}
+	return capnp.Struct(s).Uint64(0)
+}
+
+func (s Value) SetUi64(v uint64) {
+	capnp.Struct(s).SetUint16(8, 6)
+	capnp.Struct(s).SetUint64(0, v)
+}
+
+func (s Value) Ui32() uint32 {
+	if capnp.Struct(s).Uint16(8) != 7 {
+		panic("Which() != ui32")
+	}
+	return capnp.Struct(s).Uint32(0)
+}
+
+func (s Value) SetUi32(v uint32) {
+	capnp.Struct(s).SetUint16(8, 7)
+	capnp.Struct(s).SetUint32(0, v)
+}
+
+func (s Value) Ui16() uint16 {
+	if capnp.Struct(s).Uint16(8) != 8 {
+		panic("Which() != ui16")
+	}
+	return capnp.Struct(s).Uint16(0)
+}
+
+func (s Value) SetUi16(v uint16) {
+	capnp.Struct(s).SetUint16(8, 8)
+	capnp.Struct(s).SetUint16(0, v)
+}
+
+func (s Value) Ui8() uint8 {
+	if capnp.Struct(s).Uint16(8) != 9 {
+		panic("Which() != ui8")
+	}
+	return capnp.Struct(s).Uint8(0)
+}
+
+func (s Value) SetUi8(v uint8) {
+	capnp.Struct(s).SetUint16(8, 9)
+	capnp.Struct(s).SetUint8(0, v)
+}
+
+func (s Value) B() bool {
+	if capnp.Struct(s).Uint16(8) != 10 {
+		panic("Which() != b")
+	}
+	return capnp.Struct(s).Bit(0)
+}
+
+func (s Value) SetB(v bool) {
+	capnp.Struct(s).SetUint16(8, 10)
+	capnp.Struct(s).SetBit(0, v)
+}
+
+func (s Value) T() (string, error) {
+	if capnp.Struct(s).Uint16(8) != 11 {
+		panic("Which() != t")
+	}
+	p, err := capnp.Struct(s).Ptr(0)
+	return p.Text(), err
+}
+
+func (s Value) HasT() bool {
+	if capnp.Struct(s).Uint16(8) != 11 {
+		return false
+	}
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Value) TBytes() ([]byte, error) {
+	p, err := capnp.Struct(s).Ptr(0)
+	return p.TextBytes(), err
+}
+
+func (s Value) SetT(v string) error {
+	capnp.Struct(s).SetUint16(8, 11)
+	return capnp.Struct(s).SetText(0, v)
+}
+
+func (s Value) D() ([]byte, error) {
+	if capnp.Struct(s).Uint16(8) != 12 {
+		panic("Which() != d")
+	}
+	p, err := capnp.Struct(s).Ptr(0)
+	return []byte(p.Data()), err
+}
+
+func (s Value) HasD() bool {
+	if capnp.Struct(s).Uint16(8) != 12 {
+		return false
+	}
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Value) SetD(v []byte) error {
+	capnp.Struct(s).SetUint16(8, 12)
+	return capnp.Struct(s).SetData(0, v)
+}
+
+func (s Value) P() (capnp.Ptr, error) {
+	if capnp.Struct(s).Uint16(8) != 13 {
+		panic("Which() != p")
+	}
+	return capnp.Struct(s).Ptr(0)
+}
+
+func (s Value) HasP() bool {
+	if capnp.Struct(s).Uint16(8) != 13 {
+		return false
+	}
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Value) SetP(v capnp.Ptr) error {
+	capnp.Struct(s).SetUint16(8, 13)
+	return capnp.Struct(s).SetPtr(0, v)
+}
+func (s Value) Cap() capnp.Client {
+	if capnp.Struct(s).Uint16(8) != 14 {
+		panic("Which() != cap")
+	}
+	p, _ := capnp.Struct(s).Ptr(0)
+	return p.Interface().Client()
+}
+
+func (s Value) HasCap() bool {
+	if capnp.Struct(s).Uint16(8) != 14 {
+		return false
+	}
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Value) SetCap(c capnp.Client) error {
+	capnp.Struct(s).SetUint16(8, 14)
+	if !c.IsValid() {
+		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
+	}
+	seg := s.Segment()
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(c))
+	return capnp.Struct(s).SetPtr(0, in.ToPtr())
+}
+func (s Value) Lf64() (capnp.Float64List, error) {
+	if capnp.Struct(s).Uint16(8) != 15 {
+		panic("Which() != lf64")
+	}
+	p, err := capnp.Struct(s).Ptr(0)
+	return capnp.Float64List(p.List()), err
+}
+
+func (s Value) HasLf64() bool {
+	if capnp.Struct(s).Uint16(8) != 15 {
+		return false
+	}
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Value) SetLf64(v capnp.Float64List) error {
+	capnp.Struct(s).SetUint16(8, 15)
+	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+}
+
+// NewLf64 sets the lf64 field to a newly
+// allocated capnp.Float64List, preferring placement in s's segment.
+func (s Value) NewLf64(n int32) (capnp.Float64List, error) {
+	capnp.Struct(s).SetUint16(8, 15)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
+	if err != nil {
+		return capnp.Float64List{}, err
+	}
+	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	return l, err
+}
+func (s Value) Lf32() (capnp.Float32List, error) {
+	if capnp.Struct(s).Uint16(8) != 16 {
+		panic("Which() != lf32")
+	}
+	p, err := capnp.Struct(s).Ptr(0)
+	return capnp.Float32List(p.List()), err
+}
+
+func (s Value) HasLf32() bool {
+	if capnp.Struct(s).Uint16(8) != 16 {
+		return false
+	}
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Value) SetLf32(v capnp.Float32List) error {
+	capnp.Struct(s).SetUint16(8, 16)
+	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+}
+
+// NewLf32 sets the lf32 field to a newly
+// allocated capnp.Float32List, preferring placement in s's segment.
+func (s Value) NewLf32(n int32) (capnp.Float32List, error) {
+	capnp.Struct(s).SetUint16(8, 16)
+	l, err := capnp.NewFloat32List(capnp.Struct(s).Segment(), n)
+	if err != nil {
+		return capnp.Float32List{}, err
+	}
+	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	return l, err
+}
+func (s Value) Li64() (capnp.Int64List, error) {
+	if capnp.Struct(s).Uint16(8) != 17 {
+		panic("Which() != li64")
+	}
+	p, err := capnp.Struct(s).Ptr(0)
+	return capnp.Int64List(p.List()), err
+}
+
+func (s Value) HasLi64() bool {
+	if capnp.Struct(s).Uint16(8) != 17 {
+		return false
+	}
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Value) SetLi64(v capnp.Int64List) error {
+	capnp.Struct(s).SetUint16(8, 17)
+	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+}
+
+// NewLi64 sets the li64 field to a newly
+// allocated capnp.Int64List, preferring placement in s's segment.
+func (s Value) NewLi64(n int32) (capnp.Int64List, error) {
+	capnp.Struct(s).SetUint16(8, 17)
+	l, err := capnp.NewInt64List(capnp.Struct(s).Segment(), n)
+	if err != nil {
+		return capnp.Int64List{}, err
+	}
+	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	return l, err
+}
+func (s Value) Li32() (capnp.Int32List, error) {
+	if capnp.Struct(s).Uint16(8) != 18 {
+		panic("Which() != li32")
+	}
+	p, err := capnp.Struct(s).Ptr(0)
+	return capnp.Int32List(p.List()), err
+}
+
+func (s Value) HasLi32() bool {
+	if capnp.Struct(s).Uint16(8) != 18 {
+		return false
+	}
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Value) SetLi32(v capnp.Int32List) error {
+	capnp.Struct(s).SetUint16(8, 18)
+	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+}
+
+// NewLi32 sets the li32 field to a newly
+// allocated capnp.Int32List, preferring placement in s's segment.
+func (s Value) NewLi32(n int32) (capnp.Int32List, error) {
+	capnp.Struct(s).SetUint16(8, 18)
+	l, err := capnp.NewInt32List(capnp.Struct(s).Segment(), n)
+	if err != nil {
+		return capnp.Int32List{}, err
+	}
+	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	return l, err
+}
+func (s Value) Li16() (capnp.Int16List, error) {
+	if capnp.Struct(s).Uint16(8) != 19 {
+		panic("Which() != li16")
+	}
+	p, err := capnp.Struct(s).Ptr(0)
+	return capnp.Int16List(p.List()), err
+}
+
+func (s Value) HasLi16() bool {
+	if capnp.Struct(s).Uint16(8) != 19 {
+		return false
+	}
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Value) SetLi16(v capnp.Int16List) error {
+	capnp.Struct(s).SetUint16(8, 19)
+	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+}
+
+// NewLi16 sets the li16 field to a newly
+// allocated capnp.Int16List, preferring placement in s's segment.
+func (s Value) NewLi16(n int32) (capnp.Int16List, error) {
+	capnp.Struct(s).SetUint16(8, 19)
+	l, err := capnp.NewInt16List(capnp.Struct(s).Segment(), n)
+	if err != nil {
+		return capnp.Int16List{}, err
+	}
+	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	return l, err
+}
+func (s Value) Li8() (capnp.Int8List, error) {
+	if capnp.Struct(s).Uint16(8) != 20 {
+		panic("Which() != li8")
+	}
+	p, err := capnp.Struct(s).Ptr(0)
+	return capnp.Int8List(p.List()), err
+}
+
+func (s Value) HasLi8() bool {
+	if capnp.Struct(s).Uint16(8) != 20 {
+		return false
+	}
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Value) SetLi8(v capnp.Int8List) error {
+	capnp.Struct(s).SetUint16(8, 20)
+	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+}
+
+// NewLi8 sets the li8 field to a newly
+// allocated capnp.Int8List, preferring placement in s's segment.
+func (s Value) NewLi8(n int32) (capnp.Int8List, error) {
+	capnp.Struct(s).SetUint16(8, 20)
+	l, err := capnp.NewInt8List(capnp.Struct(s).Segment(), n)
+	if err != nil {
+		return capnp.Int8List{}, err
+	}
+	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	return l, err
+}
+func (s Value) Lui64() (capnp.UInt64List, error) {
+	if capnp.Struct(s).Uint16(8) != 21 {
+		panic("Which() != lui64")
+	}
+	p, err := capnp.Struct(s).Ptr(0)
+	return capnp.UInt64List(p.List()), err
+}
+
+func (s Value) HasLui64() bool {
+	if capnp.Struct(s).Uint16(8) != 21 {
+		return false
+	}
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Value) SetLui64(v capnp.UInt64List) error {
+	capnp.Struct(s).SetUint16(8, 21)
+	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+}
+
+// NewLui64 sets the lui64 field to a newly
+// allocated capnp.UInt64List, preferring placement in s's segment.
+func (s Value) NewLui64(n int32) (capnp.UInt64List, error) {
+	capnp.Struct(s).SetUint16(8, 21)
+	l, err := capnp.NewUInt64List(capnp.Struct(s).Segment(), n)
+	if err != nil {
+		return capnp.UInt64List{}, err
+	}
+	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	return l, err
+}
+func (s Value) Lui32() (capnp.UInt32List, error) {
+	if capnp.Struct(s).Uint16(8) != 22 {
+		panic("Which() != lui32")
+	}
+	p, err := capnp.Struct(s).Ptr(0)
+	return capnp.UInt32List(p.List()), err
+}
+
+func (s Value) HasLui32() bool {
+	if capnp.Struct(s).Uint16(8) != 22 {
+		return false
+	}
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Value) SetLui32(v capnp.UInt32List) error {
+	capnp.Struct(s).SetUint16(8, 22)
+	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+}
+
+// NewLui32 sets the lui32 field to a newly
+// allocated capnp.UInt32List, preferring placement in s's segment.
+func (s Value) NewLui32(n int32) (capnp.UInt32List, error) {
+	capnp.Struct(s).SetUint16(8, 22)
+	l, err := capnp.NewUInt32List(capnp.Struct(s).Segment(), n)
+	if err != nil {
+		return capnp.UInt32List{}, err
+	}
+	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	return l, err
+}
+func (s Value) Lui16() (capnp.UInt16List, error) {
+	if capnp.Struct(s).Uint16(8) != 23 {
+		panic("Which() != lui16")
+	}
+	p, err := capnp.Struct(s).Ptr(0)
+	return capnp.UInt16List(p.List()), err
+}
+
+func (s Value) HasLui16() bool {
+	if capnp.Struct(s).Uint16(8) != 23 {
+		return false
+	}
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Value) SetLui16(v capnp.UInt16List) error {
+	capnp.Struct(s).SetUint16(8, 23)
+	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+}
+
+// NewLui16 sets the lui16 field to a newly
+// allocated capnp.UInt16List, preferring placement in s's segment.
+func (s Value) NewLui16(n int32) (capnp.UInt16List, error) {
+	capnp.Struct(s).SetUint16(8, 23)
+	l, err := capnp.NewUInt16List(capnp.Struct(s).Segment(), n)
+	if err != nil {
+		return capnp.UInt16List{}, err
+	}
+	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	return l, err
+}
+func (s Value) Lui8() (capnp.UInt8List, error) {
+	if capnp.Struct(s).Uint16(8) != 24 {
+		panic("Which() != lui8")
+	}
+	p, err := capnp.Struct(s).Ptr(0)
+	return capnp.UInt8List(p.List()), err
+}
+
+func (s Value) HasLui8() bool {
+	if capnp.Struct(s).Uint16(8) != 24 {
+		return false
+	}
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Value) SetLui8(v capnp.UInt8List) error {
+	capnp.Struct(s).SetUint16(8, 24)
+	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+}
+
+// NewLui8 sets the lui8 field to a newly
+// allocated capnp.UInt8List, preferring placement in s's segment.
+func (s Value) NewLui8(n int32) (capnp.UInt8List, error) {
+	capnp.Struct(s).SetUint16(8, 24)
+	l, err := capnp.NewUInt8List(capnp.Struct(s).Segment(), n)
+	if err != nil {
+		return capnp.UInt8List{}, err
+	}
+	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	return l, err
+}
+func (s Value) Lb() (capnp.BitList, error) {
+	if capnp.Struct(s).Uint16(8) != 25 {
+		panic("Which() != lb")
+	}
+	p, err := capnp.Struct(s).Ptr(0)
+	return capnp.BitList(p.List()), err
+}
+
+func (s Value) HasLb() bool {
+	if capnp.Struct(s).Uint16(8) != 25 {
+		return false
+	}
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Value) SetLb(v capnp.BitList) error {
+	capnp.Struct(s).SetUint16(8, 25)
+	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+}
+
+// NewLb sets the lb field to a newly
+// allocated capnp.BitList, preferring placement in s's segment.
+func (s Value) NewLb(n int32) (capnp.BitList, error) {
+	capnp.Struct(s).SetUint16(8, 25)
+	l, err := capnp.NewBitList(capnp.Struct(s).Segment(), n)
+	if err != nil {
+		return capnp.BitList{}, err
+	}
+	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	return l, err
+}
+func (s Value) Lt() (capnp.TextList, error) {
+	if capnp.Struct(s).Uint16(8) != 26 {
+		panic("Which() != lt")
+	}
+	p, err := capnp.Struct(s).Ptr(0)
+	return capnp.TextList(p.List()), err
+}
+
+func (s Value) HasLt() bool {
+	if capnp.Struct(s).Uint16(8) != 26 {
+		return false
+	}
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Value) SetLt(v capnp.TextList) error {
+	capnp.Struct(s).SetUint16(8, 26)
+	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+}
+
+// NewLt sets the lt field to a newly
+// allocated capnp.TextList, preferring placement in s's segment.
+func (s Value) NewLt(n int32) (capnp.TextList, error) {
+	capnp.Struct(s).SetUint16(8, 26)
+	l, err := capnp.NewTextList(capnp.Struct(s).Segment(), n)
+	if err != nil {
+		return capnp.TextList{}, err
+	}
+	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	return l, err
+}
+func (s Value) Ld() (capnp.DataList, error) {
+	if capnp.Struct(s).Uint16(8) != 27 {
+		panic("Which() != ld")
+	}
+	p, err := capnp.Struct(s).Ptr(0)
+	return capnp.DataList(p.List()), err
+}
+
+func (s Value) HasLd() bool {
+	if capnp.Struct(s).Uint16(8) != 27 {
+		return false
+	}
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Value) SetLd(v capnp.DataList) error {
+	capnp.Struct(s).SetUint16(8, 27)
+	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+}
+
+// NewLd sets the ld field to a newly
+// allocated capnp.DataList, preferring placement in s's segment.
+func (s Value) NewLd(n int32) (capnp.DataList, error) {
+	capnp.Struct(s).SetUint16(8, 27)
+	l, err := capnp.NewDataList(capnp.Struct(s).Segment(), n)
+	if err != nil {
+		return capnp.DataList{}, err
+	}
+	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	return l, err
+}
+func (s Value) Lcap() (capnp.PointerList, error) {
+	if capnp.Struct(s).Uint16(8) != 28 {
+		panic("Which() != lcap")
+	}
+	p, err := capnp.Struct(s).Ptr(0)
+	return capnp.PointerList(p.List()), err
+}
+
+func (s Value) HasLcap() bool {
+	if capnp.Struct(s).Uint16(8) != 28 {
+		return false
+	}
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Value) SetLcap(v capnp.PointerList) error {
+	capnp.Struct(s).SetUint16(8, 28)
+	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+}
+
+// NewLcap sets the lcap field to a newly
+// allocated capnp.PointerList, preferring placement in s's segment.
+func (s Value) NewLcap(n int32) (capnp.PointerList, error) {
+	capnp.Struct(s).SetUint16(8, 28)
+	l, err := capnp.NewPointerList(capnp.Struct(s).Segment(), n)
+	if err != nil {
+		return capnp.PointerList{}, err
+	}
+	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	return l, err
+}
+
+// Value_List is a list of Value.
+type Value_List = capnp.StructList[Value]
+
+// NewValue creates a new list of Value.
+func NewValue_List(s *capnp.Segment, sz int32) (Value_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 16, PointerCount: 1}, sz)
+	return capnp.StructList[Value](l), err
+}
+
+// Value_Future is a wrapper for a Value promised by a client call.
+type Value_Future struct{ *capnp.Future }
+
+func (f Value_Future) Struct() (Value, error) {
+	p, err := f.Future.Ptr()
+	return Value(p.Struct()), err
+}
+func (p Value_Future) P() *capnp.Future {
+	return p.Future.Field(0, nil)
+}
+func (p Value_Future) Cap() capnp.Client {
+	return p.Future.Field(0, nil).Client()
+}
+
 type Pair capnp.Struct
 
 // Pair_TypeID is the unique identifier for the type Pair.
@@ -595,51 +1423,100 @@ func (p Pair_Future) Snd() *capnp.Future {
 	return p.Future.Field(1, nil)
 }
 
-const schema_99f1c9a775a88ac9 = "x\xdad\x921L\x13_\x1c\xc7\xbf\xdf\xf7z=\xfe" +
-	"I\x9b\xfe_\x8f\x84H\x8c$\x06\xa3\x92@\x10\x9c\x9c" +
-	"0\x8a\xd0\x04\x92>\xc0D\xc7\xa3\xbd\x9a3\xbd;\xbc" +
-	"\xbb\x0a.\x8e\x0e\xb8\xb9\x99\xe8\xe0\xa4\x1b\xc1\x8d\xc1\xc5" +
-	"\x0dkbT\\\x18Lt\xd2\x81\xc1\xc1\x81\x01\xce\\" +
-	"\x91\xb6\x96\xdb\xde\xef}\xf2\xbd\xcf\xef\xf7{\xe3\xf3\x9c" +
-	"\xca\\\xca\x9f\xcf@\xe8q#\x9bl~-\x9d\xf9\xf0" +
-	"b\xfd9\xd4 \x81\x8c\x09L\xees\x82\xc8$_f" +
-	"\x9f\xddn~\xdcx\x0d\x95\x97\xc9\xf6\xfa\xab\xc6\xcb\xed" +
-	"_O\x01Z\xdf\xf8\xc9\xda\xa3\x09X?9c)a" +
-	"\x02\xc9\xe4\xcc\xc0\xb9\x99G;[Pyv`C\x98" +
-	"\xff\xd3\xda\xe7\x13\x8b)e\x1dp\x15\xb0\xee\x89\x81\xe4" +
-	"\xf3\xae<l>l\xee\xf4\xf02\xa5<\xb1k=h" +
-	"\xf1\x0d\xb1\x01&\xef\x97\xdfn.\xfcn\xfe\x80>M" +
-	"&K;\xef\xee<\xfe\xaf\xbe\x87\x9b4)\x81I%" +
-	"'\x08Z\xa7d\xca\xb6ou\x9e\xdd\xc1-\xddM\xf9" +
-	"\xddz\xd3\xfa\xc5\x96\\\xc5\xb5\xa4\x12x^\xe0\x8fU" +
-	"\xa4\xbd\xe2\xaf\\)U\x1d?vk\xae\xbd\\w\xc6" +
-	"\\\xbf\x16\x0c\x97\x87\xec\xd0\xf6\xa26'z9:e" +
-	"Rg\xa4\x01\xb4\x07\xc9\xe3\xd6\x94\x1a\x81P\x86YH" +
-	"\xb3\xa6X&\xdbAl\x05\x95m\x97a\x1a\xd0'3" +
-	"@\x86\x80\xbax\x16\xd0\xc3\x92z\\P\x91\xfdL\x8b" +
-	"\xa3i\xf1\x82\xa4\xbe,h\xd6\xa2\x98E\xb23p\x80" +
-	"E\xd0\x8c\xfc*\x8b\xc6\xc9\x8b\xab}TFQ\x19E" +
-	"\xde\xe0\xe2\x89NJ~-\x08=;ve\xe0\xa7&" +
-	"\xb9\xb6\xc9\xf4 \xa0\xa7$\xf5\\\x97Ii\x04\xd0\xd7" +
-	"%uYP\x09\xd1O\x01\xa8\xf9e@\xcfI\xea[" +
-	"\x82\xd2\xad2\x07\xc1\x1cX\xf0m\xcf9>$U'" +
-	"\xaa\x84\xeeJ\x0c\xd3\x0d\xfcv\xf5\xdf\x05,\xc6a\xa3" +
-	"\x127B\xa7\xba\xe4\xac\xc5cQ\x1c6\x86Z\xe7T" +
-	"+\x97$G\x0e\xd3#\x1d\xb1<\x0f\x93#\x89n\xb3" +
-	"\xbc8H\xfa\xd3\xa7\xa1\xe6\xd3\xc9\xcdJ\xea%\xc1\x82" +
-	"\x1f\xf8\x0e\xb2\x85\xbbQ\xe0#k\xaeyud{\xe6" +
-	"\xd1%`:kq\xcfj&:\xabI\xbf\xce\xb3T" +
-	"\xa3\x0b\x10C\xf7\xedz\xa3\xd3o\xf47\x0at\xfe\x04" +
-	"\x00\x00\xff\xff{\xba\xee\xb6"
+const schema_99f1c9a775a88ac9 = "x\xdad\xd5]l\x14\xd7\x15\x07\xf0\xf3\xbfwvg" +
+	"m\xefz={\xc7\x18\x8c\xa9[d$p\xb1k\xef" +
+	"\x1a\xcbET2\x92\x01[2\xd5\x0ek*\x90Z\xb5" +
+	"k\xef\xbal\xb5\x1f\xd6\xeel\x01\xa9\xadDUU*" +
+	"\x08\xb5EB\xfdP\xfbP\xa9R\x12\x09\x09\xc1S\xf2" +
+	"\x10)\x1fO\xc4H\x11\x89\xf3\xc2C\x94/\x88CB" +
+	"\x12\x12 !\x01nt\xeez\xbc\xc6\xec\xd3\x9d\xf3;" +
+	":\xf7\xcc\x9d\xd93C\x7f\x95\xe3\xd6p\xecG!\x12" +
+	"\xde\x9ePX\x9fu\xb6\xca\x0b\x8fo\xfe\x83\xbc6@" +
+	"\xf7\xdf\xb7\xcf\xbc\xfa\xc3[\xcbd\xd9D\xea\xf7\xe2\x8f" +
+	"\xea\x94h\xac.\x12\xf4\xa5\xb7\xa7\xbe\xf7\xfa\xffN\xff" +
+	"\x97\x9cn\x90IIu\xca$\xc8\xd2oM\xfe\xe7\xe8" +
+	"\xe2\xb5\x8b\x97\xc9\x89I}\xe5\xf4\xb3\xf5g\xae\xdc\xf9" +
+	"\x17\x11\xd4#\xf1\x86j\x91\\\"$\x0f\xa8\x01^\xe9" +
+	"\xd4\x81\xaem\x07\xfe\xbc\xf4\x02914\x93C\xc2\xee" +
+	"\x80\xea\x94\xe7\xd4\x16\x93\xbfI\x1e'Rge\x97~" +
+	"\xf3\xba|\xbc\xf8\x87\xc5\xa5u\xf9&\xeb/\xf2\xba:" +
+	"oV\x7f\x97\xdc\xe2\xfe\xcb\xb5L\xea\\\xfd]\xf2b" +
+	"\x10\xcd\xe4}\xb0\xb7\xc0R\x03\xd6\xbf\xd5.\xd3\xf7\xb0" +
+	"\xf5\xcb0A_\x9d}\xe5\xd2\xa1{\x8b\xcb\xe4\xf5\x00" +
+	"zf\xe9\xb5_\x9fi)\xde\xa6\xc3\xb0!\x89R/" +
+	"\xb7%APW\xda\xb8\xf4\xaaz1\xac\xed\x03\xbc{" +
+	"6\xfa\x9e*EyU\x88\x1e\xa7\x9f\xea\\\xd6\xcf\x0f" +
+	"\xcee\x17P^\xd8=\x91\xf5\xf3\x94\x06\xbc\xa8\xb4\x88" +
+	",\x109\xfb\xfa\x89\xbcq\x09oZ\xc0\x81p\xc1\xc1" +
+	"\xa9$\x917!\xe1\xa5\x05\x1c!]\x08\"\xe7\xe0V" +
+	"\"oR\xc2\x9b\x11\x88\x9f\xccg\xab\x90$ \x09\xbd" +
+	"\xa5J\xd9?\x860\x09\x84\x09v.{2X\xeb\xb9" +
+	"J\xa9T)\x0f\xce\xc9\xecBya\xf7T._\xf6" +
+	"\x0b\xf3\x85\xecl1?X(\xcfW\xfa\xd2\xbd\xd9j" +
+	"\xb6T[\xcd\x13\xeb\xf3\x90\xe7v-\x19\"Z}\xe8" +
+	"\x08\x1e\x83\xe3\xf4\x93pBv\x9ck\x8d#\x8d\xe6\x86" +
+	"0\x85\xd2\xd9\x02\xaa\\ \xb2z\xbf;\xf8.\xfa$" +
+	"\xbc!\xbe_4\xeew\x80\x83\xdb%\xbc\x11\x01{\xbe" +
+	"\xe6#\x014_\x0e\"$\x08v\xad\x9cC\"\xf44" +
+	"\xec\x8d\xc0\x09%\x9cP\x02\xfb\x91y\xeaN\xa6\xca\xf3" +
+	"\x95j)\xeb\x17d\xa5\xbc\xee\xe4\xbb\xd7\x9e\xfcJ'" +
+	"S\xfdkO^\xac\x9c\xfc,\x917-\xe1\x1d\x11\x90" +
+	"\x85\x1c\xa2$\x10%\xc4\xcb\xd9R>\xb8\xd0\xb9|m" +
+	"\xaeZX\xf0\xc9.T\xca\xab\xd1'\xcf\xe3g\xd9\xa2" +
+	"\xac\x9b\x13\xf5\xa5\x15\xd5\x9a\xfbP[\xe4V\xa2\xccF" +
+	")\x91\xe9\x93\x021<\xd6\xa6\x17\xf5\x03\x03=\x0c\xdb" +
+	"\x19\xc4#m\xfaQ\xdb\x0c|\x9fa'\x83|\xa8]" +
+	"~K\xd5\x0e\x03}\x0cC\x0c\xd6\xb7\xda\x85E\xa4\x06" +
+	"\x0clg\x18a\x08}\xa3]\x84\x88\xd4\xb0\xec&\xca" +
+	"\xecd\x18c\x08?\xd0.\xc2Dj\x97\xec'\xca\x0c" +
+	"1\xeca\xb0\xbf\xd6\xaey\xbf\x7fl`\x84a\x9c!" +
+	"\xf2\x95v\x11!R?10\xc60\xc1\xd0r_\xbb" +
+	"h!R{\xcd\xe6{\x18&\x19Z\xefi\x17\xadD" +
+	"j\x9fL\x10e\xc6\x19\xa6\x19\xda\xeej\x17mDj" +
+	"\xca\xc0\x04C\x9a!\xfa\xa5v\x11%R\x07\x0dL2" +
+	"\xcc0\xc4\xbe\xd0.bD\xca30\xcdp\x84\xa1\xfd" +
+	"\x8ev\xd1N\xa4\x0e\x9b\xcd\xd3\x0c?g\x88\x7f\xae]" +
+	"\xc4\x89\xd4Q\xd3\xee\x0c\xc3\x02C\xc7g\xdaE\x07\x91" +
+	"*\x198\xc6\xf0'\x06\xe7S\xed\xc2!R\xa7\x0c\xfc" +
+	"\x8e\xe1\x9f\x0c\x89\xdb\xdaE\x82H\x9d7\xf07\x86\x0b" +
+	"\x0c\xea\x13\xedB\x11\xa9\xe7\x0c\xfc\x9f\xe1%\x06\xf7c" +
+	"\xed\xc2%R/\x9a\xae\x9egXb\xe8\xbc\xa5]t" +
+	"\x12\xa9k2I\x94\xb9\xca\xb0\xcc\xb0\xe1#\xedb\x03" +
+	"\x91\xbaa\xe0\x1d\x86\x87\x0c]\xcb\xdaE\x17\x91z`" +
+	"\xe0.C\x87%\x10\xdb\xf8\xa1v\xb1\x91H\xc5,\xde" +
+	"<b\xf1{\xc5\xb0\xe9\xa6v\xb1\x89\xdf+\x8b\x9fy" +
+	"\x0f\xc3\x18C\xf7\x0d\xed\xa2\x9b\x9f\xb9\x81!\x86i\x86" +
+	"\xcd\x1fh\x17\x9b\xf9y\x18\x98`\xf8\x15C\xcf\xfb\xda" +
+	"E\x0f\x91\xfa\x85\xd9\xe3\x08\x83o\xf1\x7fwt\x04m" +
+	"$\xd0F\xb0\xe7SI\xb4\x92@+\xc1.\x8c\x8e " +
+	"D\x02!^\xa7\x92\xb0H\xc0\xe2\xf5\xf0h0\xc5d" +
+	"a\x0c\x82\x04\x04!^\xe7\xfc\x16\x12h1\x17\xa9$" +
+	"\"$\x101\x17\xc3\xa3\xb0I\xc0&\xd8\xf5\xc2X0" +
+	"\xe90\x0b\x90\x00\x08\xf0\x83?\x1fr\x88\x91@\x8c\x80" +
+	"\x05$H\x98)\xc2\x938aI\x02_\xc5\x8b\xdcp" +
+	";!-a\xfan7\xb1T2\x88\xb5\x06\xb1B3" +
+	"/\xb4\x1ak\xe6Y\xab\xb1\xe1\xd1 &\x1b1\xbbX" +
+	"\x18\x0bB\xa2\x11\xea-\xd6\xd7\xd4ki\x06\x9b\x05#" +
+	"\xcd`\xb3\xa2\x1d\xecRo\x96\x0c7b\xb28\x1bD" +
+	"\x10D\xfc \x12\x0d\"\xb9 \x12\x0b*\xf1q\xac\xc4" +
+	"\x1a\xa7\xd2\xfe\xd4W#\xe3W\xebs~\xbd\x9a\xcf\xcd" +
+	"\xe4O\xf8\x835\xbfZ\xef5\xd7<K\xa3\xba1\xac" +
+	"\x9e\xf8\x8e5F\x98X7N\x1b\xf3K\xae\xff\x92\x95" +
+	"+\xe5<\x85\xe3\xbf\xa9U\xca\x14\xb6O\x94\x8a\x14^" +
+	"7\xc4\xd74`\xe7O\xf8\xeb\xbe'\xc9\xe6\xf7\x84\x7f" +
+	"\xcd\x0f\xb93p\x88D\xefo\xb3\xc5zsH\xd7V" +
+	"J\x11\xf2\xdf\x05\x00\x00\xff\xff\x036\xc4H"
 
 func RegisterSchema(reg *schemas.Registry) {
 	reg.Register(&schemas.Schema{
 		String: schema_99f1c9a775a88ac9,
 		Nodes: []uint64{
+			0x97e6feac0322118d,
 			0x9d8aa1cf1e49deb1,
 			0xb2afd1cb599c48d5,
 			0xb9d4864725174733,
 			0xd4cb7ecbfe03dad3,
+			0xe17592335373b246,
 			0xe8cbf552b1c262cc,
 			0xed6c098b67cad454,
 		},

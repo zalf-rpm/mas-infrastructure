@@ -1067,7 +1067,7 @@ func (c Profile_geoLocation) AllocResults() (geo.LatLonCoord, error) {
 // Profile_List is a list of Profile.
 type Profile_List = capnp.CapList[Profile]
 
-// NewProfile creates a new list of Profile.
+// NewProfile_List creates a new list of Profile.
 func NewProfile_List(s *capnp.Segment, sz int32) (Profile_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[Profile](l), err
@@ -1579,7 +1579,7 @@ func (c Service_streamAllProfiles) AllocResults() (Service_streamAllProfiles_Res
 // Service_List is a list of Service.
 type Service_List = capnp.CapList[Service]
 
-// NewService creates a new list of Service.
+// NewService_List creates a new list of Service.
 func NewService_List(s *capnp.Segment, sz int32) (Service_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[Service](l), err
@@ -1740,7 +1740,7 @@ func (c Service_Stream_nextProfiles) AllocResults() (Service_Stream_nextProfiles
 // Service_Stream_List is a list of Service_Stream.
 type Service_Stream_List = capnp.CapList[Service_Stream]
 
-// NewService_Stream creates a new list of Service_Stream.
+// NewService_Stream_List creates a new list of Service_Stream.
 func NewService_Stream_List(s *capnp.Segment, sz int32) (Service_Stream_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[Service_Stream](l), err

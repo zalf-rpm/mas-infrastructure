@@ -10,7 +10,6 @@ import (
 	server "capnproto.org/go/capnp/v3/server"
 	context "context"
 	common "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/common"
-	common_date "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/common_date"
 	geo "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/geo"
 	persistence "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/persistence"
 	math "math"
@@ -718,7 +717,7 @@ func (c Metadata_Supported_supportedValues) AllocResults() (Metadata_Supported_s
 // Metadata_Supported_List is a list of Metadata_Supported.
 type Metadata_Supported_List = capnp.CapList[Metadata_Supported]
 
-// NewMetadata_Supported creates a new list of Metadata_Supported.
+// NewMetadata_Supported_List creates a new list of Metadata_Supported.
 func NewMetadata_Supported_List(s *capnp.Segment, sz int32) (Metadata_Supported_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[Metadata_Supported](l), err
@@ -1186,12 +1185,12 @@ func (s Metadata_Value) SetBool(v bool) {
 	capnp.Struct(s).SetBit(64, v)
 }
 
-func (s Metadata_Value) Date() (common_date.Date, error) {
+func (s Metadata_Value) Date() (common.Date, error) {
 	if capnp.Struct(s).Uint16(0) != 4 {
 		panic("Which() != date")
 	}
 	p, err := capnp.Struct(s).Ptr(0)
-	return common_date.Date(p.Struct()), err
+	return common.Date(p.Struct()), err
 }
 
 func (s Metadata_Value) HasDate() bool {
@@ -1201,18 +1200,18 @@ func (s Metadata_Value) HasDate() bool {
 	return capnp.Struct(s).HasPtr(0)
 }
 
-func (s Metadata_Value) SetDate(v common_date.Date) error {
+func (s Metadata_Value) SetDate(v common.Date) error {
 	capnp.Struct(s).SetUint16(0, 4)
 	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
 }
 
 // NewDate sets the date field to a newly
-// allocated common_date.Date struct, preferring placement in s's segment.
-func (s Metadata_Value) NewDate() (common_date.Date, error) {
+// allocated common.Date struct, preferring placement in s's segment.
+func (s Metadata_Value) NewDate() (common.Date, error) {
 	capnp.Struct(s).SetUint16(0, 4)
-	ss, err := common_date.NewDate(capnp.Struct(s).Segment())
+	ss, err := common.NewDate(capnp.Struct(s).Segment())
 	if err != nil {
-		return common_date.Date{}, err
+		return common.Date{}, err
 	}
 	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
 	return ss, err
@@ -1234,8 +1233,8 @@ func (f Metadata_Value_Future) Struct() (Metadata_Value, error) {
 	p, err := f.Future.Ptr()
 	return Metadata_Value(p.Struct()), err
 }
-func (p Metadata_Value_Future) Date() common_date.Date_Future {
-	return common_date.Date_Future{Future: p.Future.Field(0, nil)}
+func (p Metadata_Value_Future) Date() common.Date_Future {
+	return common.Date_Future{Future: p.Future.Field(0, nil)}
 }
 
 type Metadata_Entry capnp.Struct
@@ -1447,12 +1446,12 @@ func (s Metadata_Entry) SetVersion(v string) error {
 	return capnp.Struct(s).SetText(0, v)
 }
 
-func (s Metadata_Entry) Start() (common_date.Date, error) {
+func (s Metadata_Entry) Start() (common.Date, error) {
 	if capnp.Struct(s).Uint16(2) != 7 {
 		panic("Which() != start")
 	}
 	p, err := capnp.Struct(s).Ptr(0)
-	return common_date.Date(p.Struct()), err
+	return common.Date(p.Struct()), err
 }
 
 func (s Metadata_Entry) HasStart() bool {
@@ -1462,29 +1461,29 @@ func (s Metadata_Entry) HasStart() bool {
 	return capnp.Struct(s).HasPtr(0)
 }
 
-func (s Metadata_Entry) SetStart(v common_date.Date) error {
+func (s Metadata_Entry) SetStart(v common.Date) error {
 	capnp.Struct(s).SetUint16(2, 7)
 	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
 }
 
 // NewStart sets the start field to a newly
-// allocated common_date.Date struct, preferring placement in s's segment.
-func (s Metadata_Entry) NewStart() (common_date.Date, error) {
+// allocated common.Date struct, preferring placement in s's segment.
+func (s Metadata_Entry) NewStart() (common.Date, error) {
 	capnp.Struct(s).SetUint16(2, 7)
-	ss, err := common_date.NewDate(capnp.Struct(s).Segment())
+	ss, err := common.NewDate(capnp.Struct(s).Segment())
 	if err != nil {
-		return common_date.Date{}, err
+		return common.Date{}, err
 	}
 	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
-func (s Metadata_Entry) End() (common_date.Date, error) {
+func (s Metadata_Entry) End() (common.Date, error) {
 	if capnp.Struct(s).Uint16(2) != 8 {
 		panic("Which() != end")
 	}
 	p, err := capnp.Struct(s).Ptr(0)
-	return common_date.Date(p.Struct()), err
+	return common.Date(p.Struct()), err
 }
 
 func (s Metadata_Entry) HasEnd() bool {
@@ -1494,18 +1493,18 @@ func (s Metadata_Entry) HasEnd() bool {
 	return capnp.Struct(s).HasPtr(0)
 }
 
-func (s Metadata_Entry) SetEnd(v common_date.Date) error {
+func (s Metadata_Entry) SetEnd(v common.Date) error {
 	capnp.Struct(s).SetUint16(2, 8)
 	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
 }
 
 // NewEnd sets the end field to a newly
-// allocated common_date.Date struct, preferring placement in s's segment.
-func (s Metadata_Entry) NewEnd() (common_date.Date, error) {
+// allocated common.Date struct, preferring placement in s's segment.
+func (s Metadata_Entry) NewEnd() (common.Date, error) {
 	capnp.Struct(s).SetUint16(2, 8)
-	ss, err := common_date.NewDate(capnp.Struct(s).Segment())
+	ss, err := common.NewDate(capnp.Struct(s).Segment())
 	if err != nil {
-		return common_date.Date{}, err
+		return common.Date{}, err
 	}
 	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
 	return ss, err
@@ -1572,11 +1571,11 @@ func (f Metadata_Entry_Future) Struct() (Metadata_Entry, error) {
 func (p Metadata_Entry_Future) EnsMem() EnsembleMember_Future {
 	return EnsembleMember_Future{Future: p.Future.Field(0, nil)}
 }
-func (p Metadata_Entry_Future) Start() common_date.Date_Future {
-	return common_date.Date_Future{Future: p.Future.Field(0, nil)}
+func (p Metadata_Entry_Future) Start() common.Date_Future {
+	return common.Date_Future{Future: p.Future.Field(0, nil)}
 }
-func (p Metadata_Entry_Future) End() common_date.Date_Future {
-	return common_date.Date_Future{Future: p.Future.Field(0, nil)}
+func (p Metadata_Entry_Future) End() common.Date_Future {
+	return common.Date_Future{Future: p.Future.Field(0, nil)}
 }
 
 type Metadata_Information capnp.Client
@@ -1785,7 +1784,7 @@ func (c Metadata_Information_forAll) AllocResults() (Metadata_Information_forAll
 // Metadata_Information_List is a list of Metadata_Information.
 type Metadata_Information_List = capnp.CapList[Metadata_Information]
 
-// NewMetadata_Information creates a new list of Metadata_Information.
+// NewMetadata_Information_List creates a new list of Metadata_Information.
 func NewMetadata_Information_List(s *capnp.Segment, sz int32) (Metadata_Information_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[Metadata_Information](l), err
@@ -2462,7 +2461,7 @@ func (c Dataset_streamLocations) AllocResults() (Dataset_streamLocations_Results
 // Dataset_List is a list of Dataset.
 type Dataset_List = capnp.CapList[Dataset]
 
-// NewDataset creates a new list of Dataset.
+// NewDataset_List creates a new list of Dataset.
 func NewDataset_List(s *capnp.Segment, sz int32) (Dataset_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[Dataset](l), err
@@ -2623,7 +2622,7 @@ func (c Dataset_GetLocationsCallback_nextLocations) AllocResults() (Dataset_GetL
 // Dataset_GetLocationsCallback_List is a list of Dataset_GetLocationsCallback.
 type Dataset_GetLocationsCallback_List = capnp.CapList[Dataset_GetLocationsCallback]
 
-// NewDataset_GetLocationsCallback creates a new list of Dataset_GetLocationsCallback.
+// NewDataset_GetLocationsCallback_List creates a new list of Dataset_GetLocationsCallback.
 func NewDataset_GetLocationsCallback_List(s *capnp.Segment, sz int32) (Dataset_GetLocationsCallback_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[Dataset_GetLocationsCallback](l), err
@@ -4652,7 +4651,7 @@ func (c TimeSeries_location) AllocResults() (Location, error) {
 // TimeSeries_List is a list of TimeSeries.
 type TimeSeries_List = capnp.CapList[TimeSeries]
 
-// NewTimeSeries creates a new list of TimeSeries.
+// NewTimeSeries_List creates a new list of TimeSeries.
 func NewTimeSeries_List(s *capnp.Segment, sz int32) (TimeSeries_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[TimeSeries](l), err
@@ -4951,49 +4950,49 @@ func (s TimeSeries_range_Results) Message() *capnp.Message {
 func (s TimeSeries_range_Results) Segment() *capnp.Segment {
 	return capnp.Struct(s).Segment()
 }
-func (s TimeSeries_range_Results) StartDate() (common_date.Date, error) {
+func (s TimeSeries_range_Results) StartDate() (common.Date, error) {
 	p, err := capnp.Struct(s).Ptr(0)
-	return common_date.Date(p.Struct()), err
+	return common.Date(p.Struct()), err
 }
 
 func (s TimeSeries_range_Results) HasStartDate() bool {
 	return capnp.Struct(s).HasPtr(0)
 }
 
-func (s TimeSeries_range_Results) SetStartDate(v common_date.Date) error {
+func (s TimeSeries_range_Results) SetStartDate(v common.Date) error {
 	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
 }
 
 // NewStartDate sets the startDate field to a newly
-// allocated common_date.Date struct, preferring placement in s's segment.
-func (s TimeSeries_range_Results) NewStartDate() (common_date.Date, error) {
-	ss, err := common_date.NewDate(capnp.Struct(s).Segment())
+// allocated common.Date struct, preferring placement in s's segment.
+func (s TimeSeries_range_Results) NewStartDate() (common.Date, error) {
+	ss, err := common.NewDate(capnp.Struct(s).Segment())
 	if err != nil {
-		return common_date.Date{}, err
+		return common.Date{}, err
 	}
 	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
-func (s TimeSeries_range_Results) EndDate() (common_date.Date, error) {
+func (s TimeSeries_range_Results) EndDate() (common.Date, error) {
 	p, err := capnp.Struct(s).Ptr(1)
-	return common_date.Date(p.Struct()), err
+	return common.Date(p.Struct()), err
 }
 
 func (s TimeSeries_range_Results) HasEndDate() bool {
 	return capnp.Struct(s).HasPtr(1)
 }
 
-func (s TimeSeries_range_Results) SetEndDate(v common_date.Date) error {
+func (s TimeSeries_range_Results) SetEndDate(v common.Date) error {
 	return capnp.Struct(s).SetPtr(1, capnp.Struct(v).ToPtr())
 }
 
 // NewEndDate sets the endDate field to a newly
-// allocated common_date.Date struct, preferring placement in s's segment.
-func (s TimeSeries_range_Results) NewEndDate() (common_date.Date, error) {
-	ss, err := common_date.NewDate(capnp.Struct(s).Segment())
+// allocated common.Date struct, preferring placement in s's segment.
+func (s TimeSeries_range_Results) NewEndDate() (common.Date, error) {
+	ss, err := common.NewDate(capnp.Struct(s).Segment())
 	if err != nil {
-		return common_date.Date{}, err
+		return common.Date{}, err
 	}
 	err = capnp.Struct(s).SetPtr(1, capnp.Struct(ss).ToPtr())
 	return ss, err
@@ -5015,11 +5014,11 @@ func (f TimeSeries_range_Results_Future) Struct() (TimeSeries_range_Results, err
 	p, err := f.Future.Ptr()
 	return TimeSeries_range_Results(p.Struct()), err
 }
-func (p TimeSeries_range_Results_Future) StartDate() common_date.Date_Future {
-	return common_date.Date_Future{Future: p.Future.Field(0, nil)}
+func (p TimeSeries_range_Results_Future) StartDate() common.Date_Future {
+	return common.Date_Future{Future: p.Future.Field(0, nil)}
 }
-func (p TimeSeries_range_Results_Future) EndDate() common_date.Date_Future {
-	return common_date.Date_Future{Future: p.Future.Field(1, nil)}
+func (p TimeSeries_range_Results_Future) EndDate() common.Date_Future {
+	return common.Date_Future{Future: p.Future.Field(1, nil)}
 }
 
 type TimeSeries_header_Params capnp.Struct
@@ -5528,49 +5527,49 @@ func (s TimeSeries_subrange_Params) Message() *capnp.Message {
 func (s TimeSeries_subrange_Params) Segment() *capnp.Segment {
 	return capnp.Struct(s).Segment()
 }
-func (s TimeSeries_subrange_Params) Start() (common_date.Date, error) {
+func (s TimeSeries_subrange_Params) Start() (common.Date, error) {
 	p, err := capnp.Struct(s).Ptr(0)
-	return common_date.Date(p.Struct()), err
+	return common.Date(p.Struct()), err
 }
 
 func (s TimeSeries_subrange_Params) HasStart() bool {
 	return capnp.Struct(s).HasPtr(0)
 }
 
-func (s TimeSeries_subrange_Params) SetStart(v common_date.Date) error {
+func (s TimeSeries_subrange_Params) SetStart(v common.Date) error {
 	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
 }
 
 // NewStart sets the start field to a newly
-// allocated common_date.Date struct, preferring placement in s's segment.
-func (s TimeSeries_subrange_Params) NewStart() (common_date.Date, error) {
-	ss, err := common_date.NewDate(capnp.Struct(s).Segment())
+// allocated common.Date struct, preferring placement in s's segment.
+func (s TimeSeries_subrange_Params) NewStart() (common.Date, error) {
+	ss, err := common.NewDate(capnp.Struct(s).Segment())
 	if err != nil {
-		return common_date.Date{}, err
+		return common.Date{}, err
 	}
 	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
-func (s TimeSeries_subrange_Params) End() (common_date.Date, error) {
+func (s TimeSeries_subrange_Params) End() (common.Date, error) {
 	p, err := capnp.Struct(s).Ptr(1)
-	return common_date.Date(p.Struct()), err
+	return common.Date(p.Struct()), err
 }
 
 func (s TimeSeries_subrange_Params) HasEnd() bool {
 	return capnp.Struct(s).HasPtr(1)
 }
 
-func (s TimeSeries_subrange_Params) SetEnd(v common_date.Date) error {
+func (s TimeSeries_subrange_Params) SetEnd(v common.Date) error {
 	return capnp.Struct(s).SetPtr(1, capnp.Struct(v).ToPtr())
 }
 
 // NewEnd sets the end field to a newly
-// allocated common_date.Date struct, preferring placement in s's segment.
-func (s TimeSeries_subrange_Params) NewEnd() (common_date.Date, error) {
-	ss, err := common_date.NewDate(capnp.Struct(s).Segment())
+// allocated common.Date struct, preferring placement in s's segment.
+func (s TimeSeries_subrange_Params) NewEnd() (common.Date, error) {
+	ss, err := common.NewDate(capnp.Struct(s).Segment())
 	if err != nil {
-		return common_date.Date{}, err
+		return common.Date{}, err
 	}
 	err = capnp.Struct(s).SetPtr(1, capnp.Struct(ss).ToPtr())
 	return ss, err
@@ -5592,11 +5591,11 @@ func (f TimeSeries_subrange_Params_Future) Struct() (TimeSeries_subrange_Params,
 	p, err := f.Future.Ptr()
 	return TimeSeries_subrange_Params(p.Struct()), err
 }
-func (p TimeSeries_subrange_Params_Future) Start() common_date.Date_Future {
-	return common_date.Date_Future{Future: p.Future.Field(0, nil)}
+func (p TimeSeries_subrange_Params_Future) Start() common.Date_Future {
+	return common.Date_Future{Future: p.Future.Field(0, nil)}
 }
-func (p TimeSeries_subrange_Params_Future) End() common_date.Date_Future {
-	return common_date.Date_Future{Future: p.Future.Field(1, nil)}
+func (p TimeSeries_subrange_Params_Future) End() common.Date_Future {
+	return common.Date_Future{Future: p.Future.Field(1, nil)}
 }
 
 type TimeSeries_subrange_Results capnp.Struct
@@ -6088,49 +6087,49 @@ func (s TimeSeriesData) NewHeader(n int32) (Element_List, error) {
 	err = capnp.Struct(s).SetPtr(1, l.ToPtr())
 	return l, err
 }
-func (s TimeSeriesData) StartDate() (common_date.Date, error) {
+func (s TimeSeriesData) StartDate() (common.Date, error) {
 	p, err := capnp.Struct(s).Ptr(2)
-	return common_date.Date(p.Struct()), err
+	return common.Date(p.Struct()), err
 }
 
 func (s TimeSeriesData) HasStartDate() bool {
 	return capnp.Struct(s).HasPtr(2)
 }
 
-func (s TimeSeriesData) SetStartDate(v common_date.Date) error {
+func (s TimeSeriesData) SetStartDate(v common.Date) error {
 	return capnp.Struct(s).SetPtr(2, capnp.Struct(v).ToPtr())
 }
 
 // NewStartDate sets the startDate field to a newly
-// allocated common_date.Date struct, preferring placement in s's segment.
-func (s TimeSeriesData) NewStartDate() (common_date.Date, error) {
-	ss, err := common_date.NewDate(capnp.Struct(s).Segment())
+// allocated common.Date struct, preferring placement in s's segment.
+func (s TimeSeriesData) NewStartDate() (common.Date, error) {
+	ss, err := common.NewDate(capnp.Struct(s).Segment())
 	if err != nil {
-		return common_date.Date{}, err
+		return common.Date{}, err
 	}
 	err = capnp.Struct(s).SetPtr(2, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
-func (s TimeSeriesData) EndDate() (common_date.Date, error) {
+func (s TimeSeriesData) EndDate() (common.Date, error) {
 	p, err := capnp.Struct(s).Ptr(3)
-	return common_date.Date(p.Struct()), err
+	return common.Date(p.Struct()), err
 }
 
 func (s TimeSeriesData) HasEndDate() bool {
 	return capnp.Struct(s).HasPtr(3)
 }
 
-func (s TimeSeriesData) SetEndDate(v common_date.Date) error {
+func (s TimeSeriesData) SetEndDate(v common.Date) error {
 	return capnp.Struct(s).SetPtr(3, capnp.Struct(v).ToPtr())
 }
 
 // NewEndDate sets the endDate field to a newly
-// allocated common_date.Date struct, preferring placement in s's segment.
-func (s TimeSeriesData) NewEndDate() (common_date.Date, error) {
-	ss, err := common_date.NewDate(capnp.Struct(s).Segment())
+// allocated common.Date struct, preferring placement in s's segment.
+func (s TimeSeriesData) NewEndDate() (common.Date, error) {
+	ss, err := common.NewDate(capnp.Struct(s).Segment())
 	if err != nil {
-		return common_date.Date{}, err
+		return common.Date{}, err
 	}
 	err = capnp.Struct(s).SetPtr(3, capnp.Struct(ss).ToPtr())
 	return ss, err
@@ -6160,11 +6159,11 @@ func (f TimeSeriesData_Future) Struct() (TimeSeriesData, error) {
 	p, err := f.Future.Ptr()
 	return TimeSeriesData(p.Struct()), err
 }
-func (p TimeSeriesData_Future) StartDate() common_date.Date_Future {
-	return common_date.Date_Future{Future: p.Future.Field(2, nil)}
+func (p TimeSeriesData_Future) StartDate() common.Date_Future {
+	return common.Date_Future{Future: p.Future.Field(2, nil)}
 }
-func (p TimeSeriesData_Future) EndDate() common_date.Date_Future {
-	return common_date.Date_Future{Future: p.Future.Field(3, nil)}
+func (p TimeSeriesData_Future) EndDate() common.Date_Future {
+	return common.Date_Future{Future: p.Future.Field(3, nil)}
 }
 
 type Service capnp.Client
@@ -6441,7 +6440,7 @@ func (c Service_getDatasetsFor) AllocResults() (Service_getDatasetsFor_Results, 
 // Service_List is a list of Service.
 type Service_List = capnp.CapList[Service]
 
-// NewService creates a new list of Service.
+// NewService_List creates a new list of Service.
 func NewService_List(s *capnp.Segment, sz int32) (Service_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[Service](l), err
@@ -6968,7 +6967,7 @@ func (c CSVTimeSeriesFactory_create) AllocResults() (CSVTimeSeriesFactory_create
 // CSVTimeSeriesFactory_List is a list of CSVTimeSeriesFactory.
 type CSVTimeSeriesFactory_List = capnp.CapList[CSVTimeSeriesFactory]
 
-// NewCSVTimeSeriesFactory creates a new list of CSVTimeSeriesFactory.
+// NewCSVTimeSeriesFactory_List creates a new list of CSVTimeSeriesFactory.
 func NewCSVTimeSeriesFactory_List(s *capnp.Segment, sz int32) (CSVTimeSeriesFactory_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[CSVTimeSeriesFactory](l), err
@@ -8040,7 +8039,7 @@ func (c AlterTimeSeriesWrapper_replaceWrappedTimeSeries) AllocResults() (AlterTi
 // AlterTimeSeriesWrapper_List is a list of AlterTimeSeriesWrapper.
 type AlterTimeSeriesWrapper_List = capnp.CapList[AlterTimeSeriesWrapper]
 
-// NewAlterTimeSeriesWrapper creates a new list of AlterTimeSeriesWrapper.
+// NewAlterTimeSeriesWrapper_List creates a new list of AlterTimeSeriesWrapper.
 func NewAlterTimeSeriesWrapper_List(s *capnp.Segment, sz int32) (AlterTimeSeriesWrapper_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[AlterTimeSeriesWrapper](l), err
@@ -9141,7 +9140,7 @@ func (c AlterTimeSeriesWrapperFactory_wrap) AllocResults() (AlterTimeSeriesWrapp
 // AlterTimeSeriesWrapperFactory_List is a list of AlterTimeSeriesWrapperFactory.
 type AlterTimeSeriesWrapperFactory_List = capnp.CapList[AlterTimeSeriesWrapperFactory]
 
-// NewAlterTimeSeriesWrapperFactory creates a new list of AlterTimeSeriesWrapperFactory.
+// NewAlterTimeSeriesWrapperFactory_List creates a new list of AlterTimeSeriesWrapperFactory.
 func NewAlterTimeSeriesWrapperFactory_List(s *capnp.Segment, sz int32) (AlterTimeSeriesWrapperFactory_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[AlterTimeSeriesWrapperFactory](l), err

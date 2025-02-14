@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "zalfmas-capnp-schemas"
+version = "0.1.2"
+description = ""
+authors = ["Michael Berg-Mohnicke <michael.berg@zalf.de>"]
+readme = "README.md"
+
+packages = [{ include = "zalfmas_capnp_schemas" }]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
