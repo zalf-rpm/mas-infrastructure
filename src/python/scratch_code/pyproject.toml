@@ -9,7 +9,7 @@ readme = "README.md"
 python = "^3.10"
 zalfmas-common = "^0.1.7"
 zalfmas-capnp-schemas = "^0.1.12"
-#zalfmas-fbp = "^0.1.2"
+#zalfmas-fbp = "^0.2.1"
 zalfmas-fbp = {path = "../../../../mas_python_fbp", develop = true}
 pyzmq = "^26.2.1"
 

@@ -23,12 +23,15 @@ from pathlib import Path
 import subprocess as sp
 import sys
 import uuid
+
+from numpy.f2py.crackfortran import include_paths
 from zalfmas_common import common
 from zalfmas_common.climate import csv_file_based as csv_based
 import zalfmas_capnp_schemas
 from zalfmas_common import service as serv
 from zalfmas_common.model import monica_io
 from zalfmas_fbp.run import channels as chans, ports as fbp_ports
+
 capnp_path = Path(os.path.dirname(zalfmas_capnp_schemas.__file__))
 sys.path.append(str(capnp_path))
 import climate_capnp
@@ -53,27 +56,6 @@ standalone_config = {
 async def main(config: dict):
     common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
 
-    ts = """
-id = 'c1'
-component_id = 'de.zalf.cdp.mas.fbp.monica.daily'
-name = 'monica_daily'
-
-[ports.in.env]
-sr = ''
-
-[ports.in.events]
-sr = ''
-
-[[ports.out.result]]
-sr = ''
-[[ports.out.result]]
-sr = ''
-[[ports.out.result]]
-sr = ''
-"""
-    ips, ops, cops = await fbp_ports.connect_ports_from_toml_str(ts)
-
-
     con_man = common.ConnectionManager()
     channels = []
 
@@ -90,19 +72,16 @@ sr = ''
         channels.append(chans.start_channel(config["path_to_channel"],
                                             "result_out|" + first_writer_sr, name="result"))
         channels.append(chans.start_channel(config["path_to_channel"],
-                                            "config|" + first_writer_sr, name="config",
+                                            "port_infos|" + first_writer_sr, name="port_infos",
                                             port=9991,
                                             reader_srts="r_in"))
 
         port_srs = {"in": {}, "out": {}}
-        init_toml_str = f"""
-id = '{uuid.uuid4()}'
-component_id = 'de.zalf.cdp.mas.fbp.monica.daily'
-name = 'monica_daily'
-
-"""
-        config_reader_sr = None
-        config_writer = None
+        port_infos_reader_sr = None
+        port_infos_writer = None
+        port_infos_msg = fbp_capnp.PortInfos.new_message()
+        in_ports = []
+        out_ports = []
         for i in range(4):
             p = (await first_reader.read()).value.as_struct(common_capnp.Pair)
             c_id = p.fst.as_text()
@@ -110,19 +89,20 @@ name = 'monica_daily'
             print("channel:", c_id, "reader_sr:", info.readerSRs[0], "writer_sr:", info.writerSRs[0])
             if c_id[-3:] == "_in":
                 port_name = c_id[:-3]
-                init_toml_str += f"[ports.in.{port_name}]\nsr = '{info.readerSRs[0]}'\n\n"
+                in_ports.append({"name": port_name, "sr": info.readerSRs[0]})
                 port_srs["in"][port_name] = info.writerSRs[0]
             elif c_id[-4:] == "_out":
                 port_name = c_id[:-4]
-                init_toml_str += f"[ports.out.{port_name}]\nsr = '{info.writerSRs[0]}'\n\n"
+                out_ports.append({"name": port_name, "sr": info.writerSRs[0]})
                 port_srs["out"][port_name] = info.readerSRs[0]
             else:
-                config_writer = await con_man.try_connect(info.writerSRs[0], cast_as=fbp_capnp.Channel.Writer)
-                config_reader_sr = info.readerSRs[0]
+                port_infos_writer = await con_man.try_connect(info.writerSRs[0], cast_as=fbp_capnp.Channel.Writer)
+                port_infos_reader_sr = info.readerSRs[0]
+        port_infos_msg.inPorts = in_ports
+        port_infos_msg.outPorts = out_ports
 
         # write the config to the config channel
-        toml_st = common_capnp.StructuredText.new_message(value=init_toml_str, structure={"toml": None})
-        await config_writer.write(value=fbp_capnp.IIP.new_message(content=toml_st))
+        await port_infos_writer.write(value=port_infos_msg)
 
         with open("/home/berg/GitHub/monica/installer/Hohenfinow2/sim-min.json") as _:
             sim_json = json.load(_)
@@ -148,7 +128,7 @@ name = 'monica_daily'
 
         event_writer = await con_man.try_connect(port_srs["in"]["events"], cast_as=fbp_capnp.Channel.Writer)
         crop_planted = False
-        crop_service_sr = "capnp://10.10.25.68:9997/crop"
+        crop_service_sr = "capnp://10.10.25.81:9997/crop"
         crop_service = await con_man.try_connect(crop_service_sr, cast_as=crop_capnp.Service)
         cat_to_name_to_crop = defaultdict(dict)
         for e in (await crop_service.entries()).entries:
