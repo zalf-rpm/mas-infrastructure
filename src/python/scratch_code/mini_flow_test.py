@@ -81,7 +81,7 @@ async def main(config: dict):
         await port_infos_writer_up.write(value=fbp_capnp.PortInfos.new_message(outPorts=out_ports))
         await port_infos_writer_down.write(value=fbp_capnp.PortInfos.new_message(inPorts=in_ports))
 
-        #channels[0].wait()
+        channels[0].wait()
 
     except Exception as e:
         #for process in process_id_to_process.values():
