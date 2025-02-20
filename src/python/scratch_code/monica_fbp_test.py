@@ -36,16 +36,9 @@ import common_capnp
 import fbp_capnp
 import model_capnp
 import crop_capnp
-
 sys.path.append(str(capnp_path / "model" / "monica"))
 import monica_management_capnp as mgmt_capnp
 import monica_params_capnp
-
-def start_component(path_to_component, writer_sr, name=None, verbose=False):
-    return sp.Popen([path_to_component,
-                    f"--name=comp_{name if name else str(uuid.uuid4())}",
-                    f"--startup_info_writer_sr={writer_sr}",
-                    ] + (["--verbose"] if verbose else []))
 
 standalone_config = {
     "path_to_channel": "/home/berg/GitHub/monica/_cmake_debug/common/channel",
