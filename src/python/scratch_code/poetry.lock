@@ -701,13 +701,13 @@ files = [
 
 [[package]]
 name = "zalfmas-capnp-schemas"
-version = "0.1.12"
+version = "0.1.13"
 description = ""
 optional = false
 python-versions = "<4.0,>=3.10"
 files = [
-    {file = "zalfmas_capnp_schemas-0.1.12-py3-none-any.whl", hash = "sha256:115ef3dd4c328ceff15a0575701689abddf63f02cef65c7a66ae318ce34855eb"},
-    {file = "zalfmas_capnp_schemas-0.1.12.tar.gz", hash = "sha256:c78459454292d9f3c461460d7893480ef42558144c4db29fab6f99652defc0ac"},
+    {file = "zalfmas_capnp_schemas-0.1.13-py3-none-any.whl", hash = "sha256:1c470437277f1507659d70f9e866a6bd75fdac751c27db3b03f67fe91a2b76c4"},
+    {file = "zalfmas_capnp_schemas-0.1.13.tar.gz", hash = "sha256:3dcba69a706c19054e0644926ff2ac93dd16fa194bc4b557dde94646742d9265"},
 ]
 
 [[package]]
@@ -733,7 +733,7 @@ zalfmas-capnp-schemas = ">=0.1.2,<0.2.0"
 
 [[package]]
 name = "zalfmas-fbp"
-version = "0.2.1"
+version = "0.2.2"
 description = ""
 optional = false
 python-versions = "^3.10"
@@ -742,7 +742,7 @@ develop = true
 
 [package.dependencies]
 tomli = "^2.2.1"
-zalfmas-capnp-schemas = "^0.1.12"
+zalfmas-capnp-schemas = "^0.1.13"
 zalfmas-common = "^0.1.7"
 
 [package.source]
@@ -752,4 +752,4 @@ url = "../../../../mas_python_fbp"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "f187f340889d088764605d46ae2e0b55c7c1591a0ea18fe512287bf096cafa05"
+content-hash = "f914da71282fb559da7c2692d241c5799e65947020e526e8418ec7fb1bd8092e"

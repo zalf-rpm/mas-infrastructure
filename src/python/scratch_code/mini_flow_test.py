@@ -75,6 +75,13 @@ async def main(config: dict):
         await port_infos_writer_up.write(value=fbp_capnp.PortInfos.new_message(outPorts=out_ports))
         await port_infos_writer_down.write(value=fbp_capnp.PortInfos.new_message(inPorts=in_ports))
 
+        # wait for the channels to finish
+        read_file_component = await con_man.try_connect("capnp://localhost:5111/read_file", cast_as=fbp_capnp.Component)
+        success = await read_file_component.start("capnp://10.10.24.203:9991/r_in")
+
+        console_output_component = await con_man.try_connect("capnp://localhost:5112/console_output", cast_as=fbp_capnp.Component)
+        success = await console_output_component.start("capnp://10.10.24.203:9992/r_in")
+
         channels[0].wait()
 
     except Exception as e:
