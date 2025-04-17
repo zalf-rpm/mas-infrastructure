@@ -15,6 +15,7 @@
 
 import asyncio
 import threading
+import time
 from collections import defaultdict
 import capnp
 import json
@@ -45,26 +46,13 @@ import monica_state_capnp
 
 standalone_config = {
     "path_to_channel": "/home/berg/GitHub/monica/_cmake_debug/common/channel",
+    "state_as_json": False,
 }
 async def main(config: dict):
     common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
 
     con_man = common.ConnectionManager()
     channels = []
-
-    r = await con_man.try_connect("capnp://10.10.24.222:9922/r_in", cast_as=fbp_capnp.Channel.Reader)
-    w = await con_man.try_connect("capnp://10.10.24.222:9922/w_out", cast_as=fbp_capnp.Channel.Writer)
-
-    async def write(no):
-        await w.write(value=str(no))
-
-    async def read():
-        print((await r.read()).value.as_text(), flush=True)
-
-    prom = r.read()
-    await write(1)
-    print((await prom).value.as_text(), flush=True)
-    #await read()
 
     try:
         first_chan, first_reader_sr, first_writer_sr = chans.start_first_channel(config["path_to_channel"])
@@ -76,8 +64,8 @@ async def main(config: dict):
                                             "env_in|" + first_writer_sr, name="env"))
         channels.append(chans.start_channel(config["path_to_channel"],
                                             "events_in|" + first_writer_sr, name="events"))
-        channels.append(chans.start_channel(config["path_to_channel"],
-                                            "result_out|" + first_writer_sr, name="result"))
+        #channels.append(chans.start_channel(config["path_to_channel"],
+        #                                    "result_out|" + first_writer_sr, name="result"))
         channels.append(chans.start_channel(config["path_to_channel"],
                                             "serialized_state_in|" + first_writer_sr, name="serialized_state"))
         channels.append(chans.start_channel(config["path_to_channel"],
@@ -93,7 +81,7 @@ async def main(config: dict):
         port_infos_msg = fbp_capnp.PortInfos.new_message()
         in_ports = []
         out_ports = []
-        for i in range(6):
+        for i in range(len(channels)-1):
             p = (await first_reader.read()).value.as_struct(common_capnp.Pair)
             c_id = p.fst.as_text()
             info = p.snd.as_struct(fbp_capnp.Channel.StartupInfo)
@@ -149,16 +137,20 @@ async def main(config: dict):
         state_writer = await con_man.try_connect(port_srs["in"]["serialized_state"], cast_as=fbp_capnp.Channel.Writer)
 
         event_writer = await con_man.try_connect(port_srs["in"]["events"], cast_as=fbp_capnp.Channel.Writer)
-        await event_writer.write(value=fbp_capnp.IP.new_message(type="openBracket"))
         print("wrote openBracket on event channel")
-        with open("/home/berg/GitHub/monica/installer/Hohenfinow2/climate-min.csv") as _:
-            header = _.readline().split(",")
-            h2i = {h: i for i, h in enumerate(header)}
+        #with open("/home/berg/GitHub/monica/installer/Hohenfinow2/climate-min.csv") as _:
+        with open("/home/berg/Desktop/valeh/weatherData/220/daily_mean_RES1_C403R220.csv") as _:
+            header = _.readline()[:-1].split(",")
+            h2i = {h.replace('"',''): i for i, h in enumerate(header)}
             _.readline() # skip units
             for line in _.readlines():
 
                 data = line.split(",")
-                iso_date = data[h2i["iso-date"]]
+                data[0] = data[0].replace('"','')
+                #iso_date = data[h2i["iso-date"]]
+                iso_date = data[h2i["date"]]
+
+                await event_writer.write(value=fbp_capnp.IP.new_message(type="openBracket"))
 
                 if iso_date[5:] == "09-22": # sowing
                     crop_planted = True
@@ -190,6 +182,15 @@ async def main(config: dict):
                     crop_planted = False
 
                 # finally send weather to initiate daily step
+                current_grassmind_weather = f"rain[mm]\tTemperature[degC]\tRadiation[mmolm-2s-1]\tDaylength[h]\tPET[mm]\tCO2[ppm]\n"
+                current_grassmind_weather += \
+                f'{float(data[h2i["precip"]])}\t\
+                {float(data[h2i["tavg"]])}\t\
+                {53.1*float(data[h2i["globrad"]])}\t\
+                {float(data[h2i["DayLength"]])}\t\
+                {float(data[h2i["PET"]])}\t\
+                {400}\n'
+
                 weather = mgmt_capnp.Params.DailyWeather.new_message(data=[
                     {"key": "tavg", "value": float(data[h2i["tavg"]])},
                     {"key": "tmin", "value": float(data[h2i["tmin"]])},
@@ -209,34 +210,48 @@ async def main(config: dict):
                 print("send weather event for day:", iso_date, "on event channel")
 
                 # save state
-                event = mgmt_capnp.Event.new_message(type="saveState",
-                                                     info={"id": iso_date},
-                                                     params=mgmt_capnp.Params.SaveState.new_message(
-                                                         noOfPreviousDaysSerializedClimateData=10,
-                                                         asJson=False))
-                await event_writer.write(value=fbp_capnp.IP.new_message(content=event))
+                if True:#False:
+                    event = mgmt_capnp.Event.new_message(type="saveState",
+                                                         info={"id": iso_date},
+                                                         at={"date": {"year": int(iso_date[:4]),
+                                                                      "month": int(iso_date[5:7]),
+                                                                      "day": int(iso_date[8:])}, },
+                                                         params=mgmt_capnp.Params.SaveState.new_message(
+                                                             noOfPreviousDaysSerializedClimateData=10,
+                                                             asJson=config["state_as_json"]))
+                    print("send saveState event for day:", iso_date, "on event channel")
+                    await event_writer.write(value=fbp_capnp.IP.new_message(content=event))
 
-                # read state
-                state_msg = await state_reader.read()
-                if state_msg.which() == "value":
-                    state_ip = state_msg.value.as_struct(fbp_capnp.IP)
-                    #state_json_txt = state_ip.content.as_text()
-                    print("received state for day:", iso_date, "on state channel")
-                    state = state_ip.content.as_struct(monica_state_capnp.RuntimeState)
-                    #state_json = json.loads(state_json_txt)
-                    #print(state_json)
-                    #print(state)
-                    do_something_on_state(state)
-                    #await state_writer.write(value=fbp_capnp.IP.new_message(content="blabla"))
-                    await state_writer.write(value=fbp_capnp.IP.new_message(content=state))
-                else:
-                    print("received done on state channel")
+                    # read state
+                    state_msg = await state_reader.read()
+                    if state_msg.which() == "value":
+                        print("received state for day:", iso_date, "on state channel")
+                        state_ip = state_msg.value.as_struct(fbp_capnp.IP)
+                        if config["state_as_json"]:
+                            state_json_txt = state_ip.content.as_text()
+                            state_json = json.loads(state_json_txt)
+                            do_something_on_json_state(state_json, current_grassmind_weather)
+                            await state_writer.write(value=fbp_capnp.IP.new_message(content=json.dumps(state_json)))
+                        else:
+                            state = state_ip.content.as_struct(monica_state_capnp.RuntimeState)
+                            do_something_on_state(state, current_grassmind_weather)
+                            await state_writer.write(value=fbp_capnp.IP.new_message(content=state))
+                    else:
+                        print("received done on state channel")
 
-                await event_writer.write(value=fbp_capnp.IP.new_message(type="closeBracket"))
-                print("send closeBracket on event channel")
+                    await event_writer.write(value=fbp_capnp.IP.new_message(type="closeBracket"))
+                    print("send closeBracket on event channel")
+
+            #await event_writer.write(value=fbp_capnp.IP.new_message(type="closeBracket"))
+            #print("send closeBracket on event channel")
 
             #await event_writer.write(done=None)
             #print("wrote done on event channel")
+
+        await event_writer.close()
+        await env_writer.close()
+        await state_writer.close()
+        time.sleep(3)
 
         #output_reader = await con_man.try_connect(port_srs["out"]["result"], cast_as=fbp_capnp.Channel.Reader)
         #out_msg = await output_reader.read()
@@ -260,12 +275,33 @@ async def main(config: dict):
 
         print(f"exception terminated {os.path.basename(__file__)} early. Exception:", e)
 
-
-def do_something_on_state(state):
+def do_something_on_json_state(state, grassmind_weather):
     # This function is called when the state is read
     # You can do whatever you want with the state here
+    print(state["modelState"]["currentStepDate"])
+    p = sp.Popen([
+        "/home/berg/GitHub/grassmind_zalf/_cmake_debug/formind",
+        "/home/berg/Desktop/valeh/GRASSMIND/4Zalf_10102024_rcp26/formind_parameters/parameter_R220C403I41.par"],
+        cwd="/home/berg/Desktop/valeh/GRASSMIND")
+    p.wait()
     pass
 
+
+
+
+def do_something_on_state(state, grassmind_weather):
+    # This function is called when the state is read
+    # You can do whatever you want with the state here
+    print(state.modelState.currentStepDate)
+    with open("/home/berg/Desktop/valeh/GRASSMIND/4Zalf_10102024_rcp26/formind_parameters/Climate/daily_mean_RES1_C507R216.csv_Grassmind.txt", "wt") as f:
+        f.write(grassmind_weather)
+
+    p = sp.Popen([
+        "/home/berg/GitHub/grassmind_zalf/_cmake_debug/formind",
+        "/home/berg/Desktop/valeh/GRASSMIND/4Zalf_10102024_rcp26/formind_parameters/parameter_R216C507I41.par"],
+        cwd="/home/berg/Desktop/valeh/GRASSMIND")
+    p.wait()
+    pass
 
 if __name__ == '__main__':
     asyncio.run(capnp.run(main(standalone_config)))
