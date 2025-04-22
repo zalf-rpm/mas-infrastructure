@@ -1,0 +1,101 @@
+{
+  "AbovegroundOrgan": [
+    false,
+    true,
+    true,
+    false
+  ],
+  "AssimilateReallocation": 0.30000001192092896,
+  "BaseTemperature": [
+    0.77986,
+    1.20086,
+    3.0869,
+    3.1704,
+    4.27785,
+    3.5766699999999996
+  ],
+  "CarboxylationPathway": 1,
+  "CriticalOxygenContent": [
+    0.08,
+    0.08,
+    0.08,
+    0.08,
+    0.08,
+    0.08
+  ],
+  "CuttingDelayDays": 6.9447600000000005,
+  "DefaultRadiationUseEfficiency": 0.5,
+  "DevelopmentAccelerationByNitrogenStress": 0,
+  "DroughtImpactOnFertilityFactor": 0,
+  "FieldConditionModifier": 1,
+  "InitialKcFactor": 0.4000000059604645,
+  "InitialOrganBiomass": [
+    53,
+    53,
+    0,
+    0
+  ],
+  "InitialRootingDepth": 0.10000000149011612,
+  "LimitingTemperatureHeatStress": 40,
+  "LuxuryNCoeff": 1,
+  "MaxCropDiameter": 0.003000000026077032,
+  "MaxNUptakeParam": 3.1449999809265137,
+  "MinimumNConcentration": 0.004999999888241291,
+  "MinimumTemperatureForAssimilation": 8,
+  "OptimumTemperatureForAssimilation":27,	
+  "MaximumTemperatureForAssimilation":35,
+  "MinimumTemperatureRootGrowth": 0,
+  "NConcentrationAbovegroundBiomass": 0.05999999865889549,
+  "NConcentrationB0": 0.0010000000474974513,
+  "NConcentrationPN": 2.5999999046325684,
+  "NConcentrationRoot": 0.019999999552965164,
+  "OrganGrowthRespiration": [
+    0.01,
+    0.03,
+    0.01,
+    0.015
+  ],
+  "OrganMaintenanceRespiration": [
+    0.01,
+    0.03,
+    0.01,
+    0.015
+  ],
+  "PartBiologicalNFixation": 0.08,
+  "PlantDensity": 600,
+  "RootDistributionParam": 0.00278700003400445,
+  "RootFormFactor": 5,
+  "RootGrowthLag": -30,
+  "RootPenetrationRate": 0.0007999999797903001,
+  "SamplingDepth": 0.6000000238418579,
+  "SpeciesName": "rye grass",
+  "SpecificRootLength": 300,
+  "StageAfterCut": 2,
+  "StageAtMaxDiameter": 2,
+  "StageAtMaxHeight": 3,
+  "StageMaxRootNConcentration": [
+    0.02,
+    0.02,
+    0.012,
+    0.01,
+    0.01,
+    0.01
+  ],
+  "StorageOrgan": [
+    false,
+    false,
+    false,
+    true
+  ],
+  "TargetN30": 20,
+  "TargetNSamplingDepth": 50,
+  "type": "SpeciesParameters",
+  "StageMobilFromStorageCoeff": [
+    0.00013000000000000002,
+    0.032639999999999995,
+    0.23124,
+    0.16609000000000002,
+    0.07874,
+    0.03893
+  ]
+}

@@ -1,0 +1,118 @@
+{
+	"__note__": "09/2023 : Version for simulations of historic and current plant growth. There is a different version for historic plant growth because of different headers.",
+	"crop.json": "crop.json",
+	"site.json": "site.json",
+	"climate.csv": "",
+
+	"climate.csv-options": {
+		"start-date": "2021-01-01",
+        "end-date": "2099-12-31",
+        "no-of-climate-file-header-lines": 2,
+        "csv-separator": ",",
+        "header-to-acd-names": {
+        }
+    },
+
+	"bonn_dwd_data_climate.csv-options": {
+		"_start-date": "2021-01-01",
+        "_end-date": "2099-12-31",
+        "no-of-climate-file-header-lines": 1,
+        "csv-separator": "\t",
+        "header-to-acd-names": {
+			"Date": "iso-date",
+			"TempMin": "tmin",
+			"TempMean": "tavg",
+			"TempMax": "tmax",
+            "Precipitation": "precip",
+            "RelHumCalc": ["relhumid", "*", 100.0],
+			"Radiation": ["globrad", "/", 1000.0],
+			"Windspeed": "wind"
+        }
+    },
+	
+	"debug?": false,
+	"path-to-output": "./",
+	"include-file-base-path": "params/",
+	
+	"output": { 
+	  "write-file?": false,
+		"file-name": "out.csv",
+	
+		"csv-options": {
+			"include-header-row": true,
+			"include-units-row": false,
+			"csv-separator": ","
+		},
+
+		"obj-outputs?": true,
+
+
+		"events": [
+			"xxxx-06-15", [
+				"CM-count",
+				"Crop",
+				"Year",
+				["exportedCutBiomass|CutBiomass_06-15","LAST"],
+				"AbBiom|AbBiom_06-15",
+				["SOC|SOC_06-15", [1, 4, "SUM"]],
+				["Mois|Mois_06-15", [1, 5, "SUM"]],
+				"N2O|N2O_06-15",
+				"NLeach|NLeach_06-15",
+				["ET0|Eto_06-15", "SUM"],
+				["Pot_ET|Pot_ET_06-15", "SUM"]
+							
+			],
+			"xxxx-08-15", [
+				"CM-count",
+				"Crop",
+				"Year",
+				["exportedCutBiomass|CutBiomass_08-15","LAST"],
+				"AbBiom|AbBiom_08-15",
+				["SOC|SOC_08-15", [1, 4, "SUM"]],
+				["Mois|Mois_08-15", [1, 5, "SUM"]],
+				["ET0|Eto_08-15", "SUM"],
+				["Pot_ET|Pot_ET_08-15", "SUM"],
+				"N2O|N2O_08-15",
+				"NLeach|NLeach_08-15"
+			],
+			"xxxx-10-15", [
+				"CM-count",
+				"Crop",
+				"Year",
+				["exportedCutBiomass|CutBiomass_10-15","LAST"],
+				"AbBiom|AbBiom_10-15",
+				["SOC|SOC_10-15", [1, 4, "SUM"]],
+				["Mois|Mois_10-15", [1, 5, "SUM"]],
+				["ET0|Eto_10-15", "SUM"],
+				["Pot_ET|Pot_ET_10-15", "SUM"],
+				"N2O|N2O_10-15",
+				"NLeach|NLeach_10-15"
+			]
+		]
+	},
+
+	
+	"NumberOfLayers": 20,
+	"LayerThickness": [0.1, "m"],
+
+	"UseSecondaryYields": false,
+	"NitrogenResponseOn": true,
+	"WaterDeficitResponseOn": true,
+	"EmergenceMoistureControlOn": false,
+	"EmergenceFloodingControlOn": false,
+
+	"UseAutomaticIrrigation": false,
+	"AutoIrrigationParams": {
+		"irrigationParameters": {
+			"nitrateConcentration": [0, "mg dm-3"],
+			"sulfateConcentration": [0, "mg dm-3"]
+		},
+		"amount": [0, "mm"],
+		"threshold": 0.9
+	},
+
+	"UseNMinMineralFertilisingMethod": true,
+	"NMinUserParams": { "min": 40, "max": 120, "delayInDays": 10 },
+	"NMinFertiliserPartition": ["include-from-file", "mineral-fertilisers/AN.json"],
+	"JulianDayAutomaticFertilising": 89
+}
