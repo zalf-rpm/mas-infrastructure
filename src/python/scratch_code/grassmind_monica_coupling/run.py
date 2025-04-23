@@ -14,6 +14,8 @@
 # Copyright (C: Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 import asyncio
+from datetime import date
+import io
 import subprocess
 import threading
 import time
@@ -47,13 +49,29 @@ import monica_state_capnp
 
 standalone_config = {
     "path_to_channel": "/home/berg/GitHub/monica/_cmake_debug/common/channel",
-    "state_as_json": False,
+    "grassmind_current_working_dir": "/home/berg/Desktop/valeh/GRASSMIND",
+    "path_to_formind_exe": "/home/berg/GitHub/grassmind_zalf/_cmake_debug/formind",
+    "path_to_full_weather_file": "/home/berg/Desktop/valeh/weatherData/{row:03}/daily_mean_RES1_C{col:03}R{row:03}.csv",
+    "path_to_grassmind_weather_file": "/home/berg/Desktop/valeh/GRASSMIND/4Zalf_10102024_rcp26/formind_parameters/Climate/daily_mean_RES1_C{col:03}R{row:03}.csv_Grassmind.txt",
+    "path_to_grassmind_soil_file": "/home/berg/Desktop/valeh/GRASSMIND/4Zalf_10102024_rcp26/formind_parameters/Soil/soil_R{row:03}C{col:03}.txt",
+    "path_to_grassmind_param_file": "/home/berg/Desktop/valeh/GRASSMIND/4Zalf_10102024_rcp26/formind_parameters/parameter_R{row:03}C{col:03}I41.par",
+    "path_to_result_div": "/home/berg/Desktop/valeh/GRASSMIND/4Zalf_10102024_rcp26/results/parameter_R{row:03}C{col:03}I41.div"
 }
 async def main(config: dict):
     common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
 
     con_man = common.ConnectionManager()
     channels = []
+
+    paths = {
+        "cwd": config["grassmind_current_working_dir"],
+        "full_weather": config["path_to_full_weather_file"].format(row=220, col=403),
+        "weather": config["path_to_grassmind_weather_file"].format(row=220, col=403),
+        "soil": config["path_to_grassmind_soil_file"].format(row=220, col=403),
+        "params": config["path_to_grassmind_param_file"].format(row=220, col=403),
+        "formind": config["path_to_formind_exe"].format(row=220, col=403),
+        "div": config["path_to_result_div"].format(row=220, col=403),
+    }
 
     try:
         first_chan, first_reader_sr, first_writer_sr = chans.start_first_channel(config["path_to_channel"])
@@ -141,10 +159,9 @@ async def main(config: dict):
         event_writer = await con_man.try_connect(port_srs["in"]["events"], cast_as=fbp_capnp.Channel.Writer)
 
         iso_dates = []
-        grassmind_climate_header = "rain[mm]\tTemperature[degC]\tRadiation[mmolm-2s-1]\tDaylength[h]\tPET[mm]\tCO2[ppm]\n"
-        grassmind_climate = []
+        grassmind_climate = ["rain[mm]\tTemperature[degC]\tRadiation[mmolm-2s-1]\tDaylength[h]\tPET[mm]\tCO2[ppm]\n"]
         monica_climate = []
-        with open("/home/berg/Desktop/valeh/weatherData/220/daily_mean_RES1_C403R220.csv") as _:
+        with open(paths["full_weather"]) as _:
             header = _.readline()[:-1].split(",")
             h2i = {h.replace('"',''): i for i, h in enumerate(header)}
             #_.readline() # skip units
@@ -169,105 +186,77 @@ async def main(config: dict):
                     {"key": "relhumid", "value": float(data[h2i["relhumid"]])}
                 ]))
 
+        ferts = {
+            "AN": {
+                "id": "AN",
+                "name": "Ammonium Nitrate",
+                "carbamid": 0,
+                "nh4": 0.5,
+                "no3": 0.5,
+            }
+        }
+
+        abs_events = {
+            "2021-03-01": create_sowing_event(cat_to_name_to_crop["Grass_Species4"]["Grass_CLV4"].cast_as(crop_capnp.Crop)),
+        }
+        rel_events = {
+            "06-15": create_cutting_event([
+                {"organ": "leaf", "value": 0.15, "unit": "lai", "cutOrLeft": "left", "exportPercentage": 100.0},
+                {"organ": "shoot", "value": 100, "unit": "biomass", "cutOrLeft": "left", "exportPercentage": 100.0}]),
+            "06-20": create_n_demand_fert_event(n_demand=20.0, depth=0.3, partition=ferts["AN"]),
+            "08-15": create_cutting_event([
+                {"organ": "leaf", "value": 0.4, "unit": "lai", "cutOrLeft": "left", "exportPercentage": 100.0},
+                {"organ": "shoot", "value": 100, "unit": "biomass", "cutOrLeft": "left", "exportPercentage": 100.0}]),
+            "08-20": create_n_demand_fert_event(n_demand=20.0, depth=0.3, partition=ferts["AN"]),
+            "10-15": create_cutting_event(
+                [{"organ": "leaf", "value": 0.4, "unit": "lai", "cutOrLeft": "left", "exportPercentage": 100.0},
+                 {"organ": "shoot", "value": 100, "unit": "biomass", "cutOrLeft": "left",
+                  "exportPercentage": 100.0}]),
+            "10-20": create_n_demand_fert_event(n_demand=20.0, depth=0.3, partition=ferts["AN"]),
+        }
+
         #print("wrote openBracket on event channel")
         for day_index, iso_date in enumerate(iso_dates[:-365]):
+            current_date = date.fromisoformat(iso_date)
+
             await event_writer.write(value=fbp_capnp.IP.new_message(type="openBracket"))
 
-            # if iso_date[5:] == "09-22": # sowing
-            #     crop_planted = True
-            #     if "winter wheat" in cat_to_name_to_crop["wheat"]:
-            #         crop = cat_to_name_to_crop["wheat"]["winter wheat"].cast_as(crop_capnp.Crop)
-            #     else:
-            #         crop = cat_to_name_to_crop["wheat"]["winter-wheat"].cast_as(crop_capnp.Crop)
-            #     print(await crop.info())
-            #     sowing = mgmt_capnp.Params.Sowing.new_message(
-            #         cultivar="winter-wheat",
-            #         crop=crop
-            #     )
-            #     print(sowing)
-            #     event = mgmt_capnp.Event.new_message(type="sowing",
-            #                                          at={"date": {"year": int(iso_date[:4]), "month": 9, "day": 22}},
-            #                                          info={"id": iso_date},
-            #                                          params=sowing)
-            #     await event_writer.write(value=fbp_capnp.IP.new_message(content=event))
-            #     print("sent sowing event on event channel")
-            if iso_date[5:] == "03-01": # sowing
-                crop_planted = True
-                crop = cat_to_name_to_crop["Grass_Species4"]["Grass_CLV4"].cast_as(crop_capnp.Crop)
-                print(await crop.info())
-                sowing = mgmt_capnp.Params.Sowing.new_message(
-                    cultivar="Grass_CLV4",
-                    crop=crop
-                )
-                print(sowing)
-                event = mgmt_capnp.Event.new_message(type="sowing",
-                                                     at={"date": {"year": int(iso_date[:4]), "month": 3, "day": 1}},
-                                                     info={"id": iso_date},
-                                                     params=sowing)
-                await event_writer.write(value=fbp_capnp.IP.new_message(content=event))
-                #print("sent sowing event on event channel")
+            if iso_date in abs_events:
+                current_events = abs_events[iso_date] if abs_events[iso_date] is list else [abs_events[iso_date]]
+                for cev in current_events:
+                    event = cev(current_date)
+                    await event_writer.write(value=fbp_capnp.IP.new_message(content=event))
 
-            # if crop_planted and iso_date[5:] == "09-05": # harvest
-            #     harvest = mgmt_capnp.Params.Harvest.new_message()
-            #     event = mgmt_capnp.Event.new_message(type="harvest",
-            #                                          at={"date": {"year": int(iso_date[:4]), "month": 9, "day": 5}},
-            #                                          info={"id": iso_date},
-            #                                          params=harvest)
-            #     await event_writer.write(value=fbp_capnp.IP.new_message(content=event))
-            #     print("sent harvest event on event channel")
-            #     crop_planted = False
+            rel_date = iso_date[5:]
+            if rel_date in rel_events:
+                current_events = rel_events[rel_date] if rel_events[rel_date] is list else [rel_events[rel_date]]
+                for cev in current_events:
+                    event = cev(current_date)
+                    await event_writer.write(value=fbp_capnp.IP.new_message(content=event))
 
-            # finally send weather to initiate daily step
-            current_grassmind_weather = grassmind_climate_header
-            current_grassmind_weather += "\n".join(grassmind_climate[day_index:day_index+365])
-            current_grassmind_weather += "\n"
-            event = mgmt_capnp.Event.new_message(type="weather",
-                                                 info={"id": iso_date},
-                                                 at={"date": {"year": int(iso_date[:4]),
-                                                              "month": int(iso_date[5:7]),
-                                                              "day": int(iso_date[8:])},},
-                                                 params=monica_climate[day_index])
-            await event_writer.write(value=fbp_capnp.IP.new_message(content=event))
+            # finally send weather to do daily step
+            weather_event = create_weather_event(monica_climate[day_index])(current_date)
+            await event_writer.write(value=fbp_capnp.IP.new_message(content=weather_event))
             #print("send weather event for day:", iso_date, "on event channel")
 
             # save state
-            if True:#False:
-                event = mgmt_capnp.Event.new_message(type="saveState",
-                                                     info={"id": iso_date},
-                                                     at={"date": {"year": int(iso_date[:4]),
-                                                                  "month": int(iso_date[5:7]),
-                                                                  "day": int(iso_date[8:])}, },
-                                                     params=mgmt_capnp.Params.SaveState.new_message(
-                                                         noOfPreviousDaysSerializedClimateData=10,
-                                                         asJson=config["state_as_json"]))
-                #print("send saveState event for day:", iso_date, "on event channel")
-                await event_writer.write(value=fbp_capnp.IP.new_message(content=event))
+            save_state_event = create_save_state_event(10, False)(current_date)
+            #print("send saveState event for day:", iso_date, "on event channel")
+            await event_writer.write(value=fbp_capnp.IP.new_message(content=save_state_event))
 
-                # read state
-                state_msg = await state_reader.read()
-                if state_msg.which() == "value":
-                    #print("received state for day:", iso_date, "on state channel")
-                    state_ip = state_msg.value.as_struct(fbp_capnp.IP)
-                    if config["state_as_json"]:
-                        state_json_txt = state_ip.content.as_text()
-                        state_json = json.loads(state_json_txt)
-                        do_something_on_json_state(state_json, current_grassmind_weather)
-                        await state_writer.write(value=fbp_capnp.IP.new_message(content=json.dumps(state_json)))
-                    else:
-                        old_state = state_ip.content.as_struct(monica_state_capnp.RuntimeState)
-                        new_state = do_something_on_state(old_state, current_grassmind_weather)
-                        await state_writer.write(value=fbp_capnp.IP.new_message(content=new_state))
-                else:
-                    print("received done on state channel")
+            # read state
+            state_msg = await state_reader.read()
+            if state_msg.which() == "value":
+                #print("received state for day:", iso_date, "on state channel")
+                state_ip = state_msg.value.as_struct(fbp_capnp.IP)
+                old_state = state_ip.content.as_struct(monica_state_capnp.RuntimeState)
+                new_state = run_grassmind_on_monica_state(old_state, day_index, grassmind_climate, paths)
+                await state_writer.write(value=fbp_capnp.IP.new_message(content=new_state))
+            else:
+                print("received done on state channel")
 
-                await event_writer.write(value=fbp_capnp.IP.new_message(type="closeBracket"))
-                #print("send closeBracket on event channel")
-
-            #await event_writer.write(value=fbp_capnp.IP.new_message(type="closeBracket"))
+            await event_writer.write(value=fbp_capnp.IP.new_message(type="closeBracket"))
             #print("send closeBracket on event channel")
-
-            #await event_writer.write(done=None)
-            #print("wrote done on event channel")
 
         await event_writer.close()
         await env_writer.close()
@@ -295,51 +284,93 @@ async def main(config: dict):
         for channel in channels:
             channel.terminate()
 
+def create_save_state_event(no_of_prev_days_to_serialize=10, serialize_as_json=False):
+    return lambda at: mgmt_capnp.Event.new_message(type="saveState",
+                                                   at={"date": {"year": at.year, "month": at.month, "day": at.day}},
+                                                   info={"id": at.isoformat()},
+                                                   params=mgmt_capnp.Params.SaveState.new_message(
+                                                       noOfPreviousDaysSerializedClimateData=no_of_prev_days_to_serialize,
+                                                       asJson=serialize_as_json))
 
-def do_something_on_json_state(state, grassmind_weather):
-    # This function is called when the state is read
-    # You can do whatever you want with the state here
-    print(state["modelState"]["currentStepDate"])
-    p = sp.Popen([
-        "/home/berg/GitHub/grassmind_zalf/_cmake_debug/formind",
-        "/home/berg/Desktop/valeh/GRASSMIND/4Zalf_10102024_rcp26/formind_parameters/parameter_R220C403I41.par"],
-        cwd="/home/berg/Desktop/valeh/GRASSMIND")
-    p.wait()
-    pass
+def create_weather_event(daily_weather):
+    return lambda at: mgmt_capnp.Event.new_message(type="weather",
+                                                   at={"date": {"year": at.year, "month": at.month, "day": at.day}},
+                                                   info={"id": at.isoformat()},
+                                                   params=daily_weather)
 
-def do_something_on_state(old_state, grassmind_weather):
+def create_sowing_event(crop):
+    return lambda at: mgmt_capnp.Event.new_message(type="sowing",
+                                                   at={"date": {"year": at.year, "month": at.month, "day": at.day}},
+                                                   info={"id": at.isoformat()},
+                                                   params=mgmt_capnp.Params.Sowing.new_message(
+                                                       cultivar="Grass_CLV4",
+                                                       crop=crop))
+
+def create_harvest_event():
+    return lambda at: mgmt_capnp.Event.new_message(type="harvest",
+                                                   at={"date": {"year": at.year, "month": at.month, "day": at.day}},
+                                                   info={"id": at.isoformat()},
+                                                   params=mgmt_capnp.Params.Harvest.new_message())
+
+def create_n_fert_event(amount: float, partition: dict):
+    return lambda at: mgmt_capnp.Event.new_message(type="mineralFertilization",
+                                                   at={"date": {"year": at.year, "month": at.month, "day": at.day}},
+                                                   info={"id": at.isoformat()},
+                                                   params=mgmt_capnp.Params.MineralFertilization.new_message(
+                                                       amount = amount,
+                                                       partition = partition))
+
+def create_n_demand_fert_event(n_demand: float, depth: float, partition: dict, stage: int = 1):
+    return lambda at: mgmt_capnp.Event.new_message(type="nDemandFertilization",
+                                                   at={"date": {"year": at.year, "month": at.month, "day": at.day}},
+                                                   info={"id": at.isoformat()},
+                                                   params=mgmt_capnp.Params.NDemandFertilization.new_message(
+                                                       nDemand = n_demand,
+                                                       depth = depth,
+                                                       stage = stage,
+                                                       partition = partition))
+
+def create_cutting_event(cutting_spec: list[dict]):
+    return lambda at: mgmt_capnp.Event.new_message(type="cutting",
+                                                   at={"date": {"year": at.year, "month": at.month, "day": at.day}},
+                                                   info={"id": at.isoformat()},
+                                                   params=mgmt_capnp.Params.Cutting.new_message(cuttingSpec = cutting_spec))
+
+
+def run_grassmind_on_monica_state(old_state, day_index, grassmind_climate, paths):
     if not old_state.modelState._has("currentCropModule"):
         return old_state
 
-    if not hasattr(do_something_on_state, "initial_param_values"):
-        do_something_on_state.initial_param_values = {
+    new_state = old_state
+    if not hasattr(run_grassmind_on_monica_state, "initial_param_values"):
+        run_grassmind_on_monica_state.initial_param_values = {
             "SpecificLeafArea": old_state.modelState.currentCropModule.cultivarParams.specificLeafArea,
             "StageKcFactor": old_state.modelState.currentCropModule.cultivarParams.stageKcFactor,
             "DroughtStressThreshold": old_state.modelState.currentCropModule.cultivarParams.droughtStressThreshold,
             "CropSpecificMaxRootingDepth": old_state.modelState.currentCropModule.cultivarParams.cropSpecificMaxRootingDepth,
         }
 
-    print(old_state.modelState.currentStepDate)
-    with open("/home/berg/Desktop/valeh/GRASSMIND/4Zalf_10102024_rcp26/formind_parameters/Climate/daily_mean_RES1_C403R220.csv_Grassmind.txt", "wt") as f:
-        f.write(grassmind_weather)
+    with open(paths["weather"], "wt") as f:
+        f.write(grassmind_climate[0])
+        for line in grassmind_climate[day_index:day_index + 365]:
+            f.write(line)
+            f.write("\n")
 
-    p = sp.Popen([
-        "/home/berg/GitHub/grassmind_zalf/_cmake_debug/formind",
-        "/home/berg/Desktop/valeh/GRASSMIND/4Zalf_10102024_rcp26/formind_parameters/parameter_R220C403I41.par"],
-        cwd="/home/berg/Desktop/valeh/GRASSMIND",
-        stdout=subprocess.DEVNULL
-    )
+    with open(paths["soil"], "wt") as f:
+        f.write(create_grassmind_soil_from_state(old_state))
+
+    p = sp.Popen([paths["formind"], paths["params"]], cwd=paths["cwd"], stdout=subprocess.DEVNULL)
     p.wait()
 
     # read .div file to get the current fractions
     rel_species_abundance = None
-    with open("/home/berg/Desktop/valeh/GRASSMIND/4Zalf_10102024_rcp26/results/parameter_R220C403I41.div") as f:
+    with open(paths["div"]) as f:
         lines = f.readlines()
         rel_species_abundance = list(map(float, lines[4].split("\t")[2:6]))
 
     if rel_species_abundance:
         params = calc_community_level_params(rel_species_abundance)
-        print("rel species abundance:", params)
+        print(old_state.modelState.currentStepDate, "community params:", params)
         new_state = old_state.as_builder()
         cps = new_state.modelState.currentCropModule.cultivarParams
         cps.specificLeafArea = list(map(lambda v: v * params["SpecificLeafArea"], list(cps.specificLeafArea)))
@@ -347,9 +378,23 @@ def do_something_on_state(old_state, grassmind_weather):
         cps.droughtStressThreshold = list(map(lambda v: v * params["DroughtStressThreshold"],
                                               list(cps.droughtStressThreshold)))
         cps.cropSpecificMaxRootingDepth = params["CropSpecificMaxRootingDepth"]
-
     return new_state
 
+def create_grassmind_soil_from_state(state):
+    sc = state.modelState.soilColumn
+    sb = io.StringIO()
+    sb.write("Silt\t\Clay\tSand\n")
+    silt = 1 - sc.layers[0].sps.soilSandContent - sc.layers[0].sps.soilClayContent
+    sb.write(f"{silt}\t\{sc.layers[0].sps.soilClayContent}\t{sc.layers[0].sps.soilSandContent}\n")
+    sb.write("\n")
+    sb.write("Layer\tRWC[-]\tFC[V%]\tPWP[V%]\tMinN[gm-2]\tPOR[V%]\tKS[mm/d]\n")
+    for i, l in enumerate(sc.layers):
+        n_kg_per_m3 = l.soilNO3 + l.soilNO2 + l.soilNH4
+        n_kg_per_m2 = n_kg_per_m3 * 0.01 # m3 -> m2 (0.1m layer thickness)
+        n_g_per_m2 = n_kg_per_m2 * 1000.0 # kg -> g
+        ks = l.sps._get("lambda") * 1000.0 # m/d -> mm/d
+        sb.write(f"{i}\t{round(l.soilMoistureM3, 5)}\t{round(l.sps.fieldCapacity*100.0, 2)}\t{round(l.sps.permanentWiltingPoint*100.0,2)}\t{round(n_g_per_m2, 5)}\t{round(l.sps.saturation*100.0, 2)}\t{round(ks,2)}\n")
+    return sb.getvalue()
 
 def calc_community_level_params(s_i_s):
     p_i_s = {
@@ -366,7 +411,6 @@ def calc_community_level_params(s_i_s):
             sum_sip_x_si_x_pi += s_i_p * s_i_s[i] * ps["values"][i]
             sum_sip_x_si += s_i_p * s_i_s[i]
         res[param_name] = ps["min"] + (sum_sip_x_si_x_pi/sum_sip_x_si)*(ps["max"] - ps["min"])
-
     return res
 
 if __name__ == '__main__':
