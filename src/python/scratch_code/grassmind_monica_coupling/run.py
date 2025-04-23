@@ -57,7 +57,8 @@ standalone_config = {
     "path_to_grassmind_weather_file": "/home/berg/Desktop/valeh/GRASSMIND/4Zalf_10102024_rcp26/formind_parameters/Climate/daily_mean_RES1_C{col:03}R{row:03}.csv_Grassmind.txt",
     "path_to_grassmind_soil_file": "/home/berg/Desktop/valeh/GRASSMIND/4Zalf_10102024_rcp26/formind_parameters/Soil/soil_R{row:03}C{col:03}.txt",
     "path_to_grassmind_param_file": "/home/berg/Desktop/valeh/GRASSMIND/4Zalf_10102024_rcp26/formind_parameters/parameter_R{row:03}C{col:03}I41.par",
-    "path_to_result_div": "/home/berg/Desktop/valeh/GRASSMIND/4Zalf_10102024_rcp26/results/parameter_R{row:03}C{col:03}I41.div"
+    "path_to_result_div": "/home/berg/Desktop/valeh/GRASSMIND/4Zalf_10102024_rcp26/results/parameter_R{row:03}C{col:03}I41.div",
+    "path_to_result_bt": "/home/berg/Desktop/valeh/GRASSMIND/4Zalf_10102024_rcp26/results/parameter_R{row:03}C{col:03}I41.bt"
 }
 async def main(config: dict):
     common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
@@ -73,6 +74,7 @@ async def main(config: dict):
         "params": config["path_to_grassmind_param_file"].format(row=220, col=403),
         "formind": config["path_to_formind_exe"].format(row=220, col=403),
         "div": config["path_to_result_div"].format(row=220, col=403),
+        "bt": config["path_to_result_bt"].format(row=220, col=403),
     }
 
     try:
@@ -85,8 +87,8 @@ async def main(config: dict):
                                             "env_in|" + first_writer_sr, name="env"))
         channels.append(chans.start_channel(config["path_to_channel"],
                                             "events_in|" + first_writer_sr, name="events"))
-        #channels.append(chans.start_channel(config["path_to_channel"],
-        #                                    "result_out|" + first_writer_sr, name="result"))
+        channels.append(chans.start_channel(config["path_to_channel"],
+                                            "result_out|" + first_writer_sr, name="result"))
         channels.append(chans.start_channel(config["path_to_channel"],
                                             "serialized_state_in|" + first_writer_sr, name="serialized_state"))
         channels.append(chans.start_channel(config["path_to_channel"],
@@ -164,8 +166,8 @@ async def main(config: dict):
 
         state_reader = await con_man.try_connect(port_srs["out"]["serialized_state"], cast_as=fbp_capnp.Channel.Reader)
         state_writer = await con_man.try_connect(port_srs["in"]["serialized_state"], cast_as=fbp_capnp.Channel.Writer)
-
         event_writer = await con_man.try_connect(port_srs["in"]["events"], cast_as=fbp_capnp.Channel.Writer)
+        output_reader = await con_man.try_connect(port_srs["out"]["result"], cast_as=fbp_capnp.Channel.Reader)
 
         iso_dates = []
         grassmind_climate = ["rain[mm]\tTemperature[degC]\tRadiation[mmolm-2s-1]\tDaylength[h]\tPET[mm]\tCO2[ppm]\n"]
@@ -255,17 +257,33 @@ async def main(config: dict):
 
             # read state
             state_msg = await state_reader.read()
+            grassmind_total_biomass_kg_per_ha = None
             if state_msg.which() == "value":
                 #print("received state for day:", iso_date, "on state channel")
                 state_ip = state_msg.value.as_struct(fbp_capnp.IP)
                 old_state = state_ip.content.as_struct(monica_state_capnp.RuntimeState)
-                new_state = run_grassmind_on_monica_state(old_state, day_index, grassmind_climate, paths)
+                new_state, grassmind_total_biomass_kg_per_ha = run_grassmind_on_monica_state(old_state, day_index, grassmind_climate, paths)
                 await state_writer.write(value=fbp_capnp.IP.new_message(content=new_state))
             else:
                 print("received done on state channel")
 
             await event_writer.write(value=fbp_capnp.IP.new_message(type="closeBracket"))
             #print("send closeBracket on event channel")
+
+            # reading output
+            out_msg = await output_reader.read()
+            mo_biomass = None
+            if out_msg.which() == "value":
+               out_ip = out_msg.value.as_struct(fbp_capnp.IP)
+               st = out_ip.content.as_struct(common_capnp.StructuredText)
+               r = json.loads(st.value)
+               mo_res = r["data"][0]["results"][0]
+               mo_biomass = mo_res["AbBiom"]
+               #print(r)
+            else:
+               print("received done on output channel")
+
+            print(iso_date, "biomass gm:", grassmind_total_biomass_kg_per_ha, "mo:", mo_biomass)
 
         await event_writer.close()
         await env_writer.close()
@@ -350,7 +368,7 @@ def create_cutting_event(cutting_spec: list[dict]):
 
 def run_grassmind_on_monica_state(old_state, day_index, grassmind_climate, paths):
     if not old_state.modelState._has("currentCropModule"):
-        return old_state
+        return old_state, None
 
     new_state = old_state
     if not hasattr(run_grassmind_on_monica_state, "initial_param_values"):
@@ -378,10 +396,13 @@ def run_grassmind_on_monica_state(old_state, day_index, grassmind_climate, paths
     with open(paths["div"]) as f:
         lines = f.readlines()
         rel_species_abundance = list(map(float, lines[4].split("\t")[2:6]))
+    with open(paths["bt"]) as f:
+        lines = f.readlines()
+        total_biomass_kg_per_ha = float(lines[4].split("\t")[1])*1000.0 # t -> kg ha-1
 
     if rel_species_abundance:
         params = calc_community_level_params(rel_species_abundance)
-        print(old_state.modelState.currentStepDate, "community params:", params)
+        #print(old_state.modelState.currentStepDate, "community params:", params)
         new_state = old_state.as_builder()
         cps = new_state.modelState.currentCropModule.cultivarParams
         cps.specificLeafArea = list(map(lambda v: v * params["SpecificLeafArea"], list(cps.specificLeafArea)))
@@ -389,7 +410,7 @@ def run_grassmind_on_monica_state(old_state, day_index, grassmind_climate, paths
         cps.droughtStressThreshold = list(map(lambda v: v * params["DroughtStressThreshold"],
                                               list(cps.droughtStressThreshold)))
         cps.cropSpecificMaxRootingDepth = params["CropSpecificMaxRootingDepth"]
-    return new_state
+    return new_state, total_biomass_kg_per_ha
 
 def create_grassmind_soil_from_state(state):
     sc = state.modelState.soilColumn
