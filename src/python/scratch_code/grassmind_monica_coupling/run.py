@@ -49,6 +49,8 @@ import monica_state_capnp
 
 standalone_config = {
     "path_to_channel": "/home/berg/GitHub/monica/_cmake_debug/common/channel",
+    "path_to_daily_monica_fbp_component": "/home/berg/GitHub/monica/_cmake_debug/daily-monica-fbp-component",
+    "path_to_monica_parameters_dir": "/home/berg/GitHub/monica-parameters",
     "grassmind_current_working_dir": "/home/berg/Desktop/valeh/GRASSMIND",
     "path_to_formind_exe": "/home/berg/GitHub/grassmind_zalf/_cmake_debug/formind",
     "path_to_full_weather_file": "/home/berg/Desktop/valeh/weatherData/{row:03}/daily_mean_RES1_C{col:03}R{row:03}.csv",
@@ -118,6 +120,13 @@ async def main(config: dict):
                 port_infos_reader_sr = info.readerSRs[0]
         port_infos_msg.inPorts = in_ports
         port_infos_msg.outPorts = out_ports
+
+        monica_fbp = sp.Popen([
+            config["path_to_daily_monica_fbp_component"],
+            #"--verbose",
+            port_infos_reader_sr
+        ], cwd=paths["cwd"], env={"MONICA_PARAMETERS": config['path_to_monica_parameters_dir']},
+        stdout=subprocess.DEVNULL)
 
         # write the config to the config channel
         await port_infos_writer.write(value=port_infos_msg)
@@ -275,6 +284,7 @@ async def main(config: dict):
         for channel in channels:
             channel.terminate()
         print(f"{os.path.basename(__file__)}: all channels terminated")
+        monica_fbp.terminate()
 
     except Exception as e:
         print(f"exception terminated {os.path.basename(__file__)} early. Exception:", e)
@@ -283,6 +293,7 @@ async def main(config: dict):
         #    process.terminate()
         for channel in channels:
             channel.terminate()
+        monica_fbp.terminate()
 
 def create_save_state_event(no_of_prev_days_to_serialize=10, serialize_as_json=False):
     return lambda at: mgmt_capnp.Event.new_message(type="saveState",
