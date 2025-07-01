@@ -661,6 +661,28 @@ def run_resolver_registrar():
 
     return Thread(target=beat).start()
 
+async def test_components_service():
+    con_man = common.ConnectionManager()
+
+    service = await con_man.try_connect("capnp://10.10.28.250:9988/local_components",
+                                        cast_as=reg_capnp.Registry)
+    print(await service.supportedCategories())
+    for e in (await service.entries()).entries:
+        ih = e.ref.cast_as(common_capnp.IdentifiableHolder)
+        print(e, "ref:", ih)
+        print("comp:", (await ih.value()).value.as_struct(fbp_capnp.Component))
+    #print(await service.component("iip"))
+
+
+async def test_channel_starter_service():
+    con_man = common.ConnectionManager()
+    service = await con_man.try_connect("capnp://10.10.28.250:9989/channel_starter",
+                                        cast_as=fbp_capnp.StartChannelsService)
+    print(await service.info())
+    infos = (await service.create(noOfChannels=2, readerSrts=["a", "b"])).startupInfos
+    #infos = (await service.create(name="bla")).startupInfos
+    print(infos)
+
 
 async def main():
     config = {
@@ -668,6 +690,10 @@ async def main():
         "server": "localhost"
     }
     common.update_config(config, sys.argv, print_config=True, allow_new_keys=True)
+
+    await test_channel_starter_service()
+    #await test_components_service()
+    return
 
     #await run_monica()
 

@@ -7,9 +7,11 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-zalfmas-common = "^0.1.7"
-zalfmas-capnp-schemas = "^0.1.14"
-#zalfmas-fbp = "^0.2.2"
+#zalfmas-common = "^0.1.20"
+zalfmas-common = {path = "../../../../mas_python_common", develop = true}
+#zalfmas-capnp-schemas = "^0.1.20"
+zalfmas-capnp-schemas = {path = "../../../../mas_capnproto_schemas", develop = true}
+#zalfmas-fbp = "^0.2.6"
 zalfmas-fbp = {path = "../../../../mas_python_fbp", develop = true}
 pyzmq = "^26.2.1"
 
