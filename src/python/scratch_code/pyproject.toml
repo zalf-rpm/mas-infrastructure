@@ -1,20 +1,30 @@
-[tool.poetry]
+[project]
 name = "scratch-code"
 version = "0.1.0"
 description = ""
-authors = ["Michael Berg-Mohnicke <michael.berg@zalf.de>"]
 readme = "README.md"
+requires-python = ">=3.10,<3.13"
+authors = [{ name = "Michael Berg-Mohnicke", email = "michael.berg@zalf.de" }]
+#dependencies = [
+#    "pycapnp(>=2.0.0)",
+#    "zalfmas-common (>=0.1.22,<0.2.0)",
+#    "zalfmas-fbp (>=0.2.6,<0.3.0)",
+#    "zalfmas-capnp-schemas (>=0.1.29,<0.2.0)",
+#    "poetry-core (>=2.0.0)",
+#    "pyzmq(>=26.2.1)",
+#]
 
-[tool.poetry.dependencies]
-python = "^3.10"
-#zalfmas-common = "^0.1.20"
-zalfmas-common = {path = "../../../../mas_python_common", develop = true}
-#zalfmas-capnp-schemas = "^0.1.20"
-zalfmas-capnp-schemas = {path = "../../../../mas_capnproto_schemas", develop = true}
-#zalfmas-fbp = "^0.2.6"
-zalfmas-fbp = {path = "../../../../mas_python_fbp", develop = true}
-pyzmq = "^26.2.1"
+[tool.poetry]
+package-mode = false
 
 [build-system]
-requires = ["poetry-core"]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.dependencies]
+zalfmas-common = {path = "../../../../mas_python_common", develop = true}
+zalfmas-capnp-schemas = {path = "../../../../mas_capnproto_schemas", develop = true}
+zalfmas-fbp = {path = "../../../../mas_python_fbp", develop = true}
+pycapnp = "^2.0.0"
+poetry-core = "^2.1.3"
+pyzmq = "^27.0.2"

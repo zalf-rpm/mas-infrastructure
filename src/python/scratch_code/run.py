@@ -14,6 +14,7 @@
 # This file has been created at the Institute of
 # Landscape Systems Analysis at the ZALF.
 # Copyright (C: Leibniz Centre for Agricultural Landscape Research (ZALF)
+from __future__ import annotations
 
 import asyncio
 import capnp
@@ -23,37 +24,36 @@ from pathlib import Path
 import psutil
 from random import random
 import sys
+from datetime import datetime
 import time
 from threading import Thread
 
+from zalfmas_capnp_schemas_with_stubs import (
+    #climate_capnp,
+    common_capnp,
+    #crop_capnp,
+    fbp_capnp,
+    #geo_capnp,
+    #grid_capnp,
+    #management_capnp as mgmt_capnp,
+    #model_capnp,
+    persistence_capnp,
+    registry_capnp as reg_capnp,
+    #service_capnp,
+    #soil_capnp,
+    #storage_capnp,
+)
+
 from zalfmas_common import common
 from zalfmas_common.climate import csv_file_based as csv_based
-import zalfmas_capnp_schemas
 from zalfmas_common.model import monica_io
 
-capnp_path = Path(os.path.dirname(zalfmas_capnp_schemas.__file__))
-sys.path.append(str(capnp_path))
-import a_capnp
-import climate_capnp
-import common_capnp
-import crop_capnp
-import fbp_capnp
-import geo_capnp
-import grid_capnp
-import management_capnp as mgmt_capnp
-import model_capnp
-import persistence_capnp
-import registry_capnp as reg_capnp
-import service_capnp
-import soil_capnp
-import storage_capnp
+#from zalfmas_capnp_schemas_with_stubs.model.monica import (
+#    monica_management_capnp as monica_mgmt_capnp,
+#    monica_state_capnp,
+#)
+#from zalfmas_capnp_schemas_with_stubs.model.yieldstat import yieldstat_capnp
 
-sys.path.append(str(capnp_path / "model" / "monica"))
-import management_capnp as monica_mgmt_capnp
-import monica_state_capnp
-
-sys.path.append(str(capnp_path / "model" / "yieldstat"))
-import yieldstat_capnp
 
 async def async_main():
     config = {
@@ -284,10 +284,12 @@ async def run_climate_service():
     con_man = common.ConnectionManager()
     # restorer = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000", cast_as=persistence_capnp.Restorer)
     # service = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000/6feaf299-d620-430b-9189-36dfccf48b3a", cast_as=climate_data_capnp.CSVTimeSeriesFactory)
-    sr = "capnp://psPzzv6IceWif1_WKy3M15VN1H41nlqetNb4pgmMhKA=@10.10.25.161:40617/b42d4993-3617-4e6a-a222-578ca670391a"
+    #sr = "capnp://psPzzv6IceWif1_WKy3M15VN1H41nlqetNb4pgmMhKA=@10.10.25.161:40617/b42d4993-3617-4e6a-a222-578ca670391a"
+    sr = "capnp://OLBqQD7KRvJJFgAoXrcUlt5i7rb_pjyNE9ZB7v8Shew@10.10.28.186:36425/dwd_climate_data_bonn/bonn"
 
-    service = con_man.try_connect(sr, cast_as=climate_capnp.Service)
-    service = con_man.try_connect(sr, cast_as=climate_capnp.Service)
+    service = await con_man.try_connect(sr, cast_as=climate_capnp.Service)
+    print(await service.info())
+    return
     # timeseries = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000/8e7961c5-bd16-4c1d-86fd-8347dc46185e", cast_as=climate_data_capnp.TimeSeries)
     # unsave = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000/ac544d7b-1f82-4bf8-9adb-cf586ae46287", cast_as=common_capnp.Action)
     # 4e4fe3fb-791a-4a26-9ae1-1ce52093bda5'  row: 340/col: 288
@@ -432,29 +434,27 @@ def run_cross_domain_registry():
     print("bla")
 
 
-def run_storage_container():
+async def run_storage_container():
     con_man = common.ConnectionManager()
-    container_sr = "capnp://jXS22bpAGSjfksa0JkDI_092-h-bdZi4lKNBBgD7kWk=@10.10.24.218:40305/ZGVjODYxYWQtZmVkOS00YjEzLWJmNjQtNWU0OGRmYzhhYmZh"
-    container = con_man.try_connect(container_sr, cast_as=storage_capnp.Store.Container)
-    print("container info:", container.info().wait())
-
+    container_sr = "capnp://UsDvHic7pWXb5R7e1HTFwNB5kKhqZEflZp9_Srbjq4Q@10.10.28.186:45195/769e56cf-ddad-4b60-b636-174bf035bc16"
+    container = await con_man.try_connect(container_sr, cast_as=storage_capnp.Store.Container)
+    print("container info:", await container.info())
     print("end")
 
 
-def run_storage_service():
-    run_storage_container()
+async def run_storage_service():
+    #run_storage_container()
 
     con_man = common.ConnectionManager()
-    service_sr = "capnp://jXS22bpAGSjfksa0JkDI_092-h-bdZi4lKNBBgD7kWk@10.10.24.218:40305/ZWJhM2E2NWEtOGM2MS00OWQxLTk3NjAtODVlNDYyNWYyZmRj"
-    service = con_man.try_connect(service_sr, cast_as=storage_capnp.Store)
-    print("service info:", service.info().wait())
-    # 'ab7b1472-5437-42ba-b65b-4285717ffe16'
-    if (True):
-        new_container = service.newContainer("test-container xxx", "test container descr").wait().container
-        info = new_container.info().wait()
-        id = info.id
-        print("new_container:", info)
-
+    service_sr = "capnp://UsDvHic7pWXb5R7e1HTFwNB5kKhqZEflZp9_Srbjq4Q@10.10.28.186:45195/769e56cf-ddad-4b60-b636-174bf035bc16"
+    service = await con_man.try_connect(service_sr, cast_as=storage_capnp.Store)
+    print("service info:", await service.info())
+    if True:
+        new_container = (await service.newContainer("dwd_bonn_climate_service", "")).container
+        info = await new_container.info()
+        print("new_container:", info.id)
+        srs = await new_container.save()
+        container_sr = common.sturdy_ref_str_from_sr(srs.sturdyRef)
         try:
             print("add text:",
                   new_container.addEntry(key="some text", value={"textValue": "text value1"}).wait().success)
@@ -516,7 +516,7 @@ def run_storage_service():
 
         except Exception as e:
             print("error:", e)
-    if (False):
+    if False:
         all_containers = service.listContainers().wait().containers
         for cont in all_containers:
             info = cont.info().wait()
@@ -564,15 +564,29 @@ def run_climate():
                                   cast_as=climate_capnp.Service)
     print(climate.info().wait())
 
+async def test_new_fbp_component_style():
+    con_man = common.ConnectionManager()
+
+    gw_sr_str = "capnp://capnp-gateway.staging.dakispro.de"
+    r_sr = "capnp://MXcnNF07GbAxOLcPpUmpqZ6Djzl7EKwQzDjX3t2702I@10.10.28.186:46549/37a7ea60-6a55-4577-81ad-c4800d26c46b"
+    reader = (await con_man.try_connect(r_sr)).cast_as(fbp_capnp.Channel.Reader)
+    p = (await reader.read()).value.as_interface(fbp_capnp.Process)
+    print("received process:", await p.info())
+    gw_sr = common.create_sturdy_ref_from_sr_str(gw_sr_str)
+    self_at_gw_sr = (await p.sturdyRefAtGateway(gw_sr, "me")).selfAtGatewaySR
+    print("self @ GW SR:", self_at_gw_sr)
+
+
+
 
 async def run_channel():
     con_man = common.ConnectionManager()
 
-    wsr = "capnp://vtGotI6_o12o-aY5QoSIHuiVK66QIw0bTU1QAzTIbCc@10.10.25.161:41207/377d8e50-c809-4fef-b4c5-d6de22cd337c"
-    rsr = "capnp://vtGotI6_o12o-aY5QoSIHuiVK66QIw0bTU1QAzTIbCc@10.10.25.161:41207/29a53860-2016-49f2-9d71-e6869b495f35"
+    rsr = "capnp://OqCNeMMUaoPlSH5l6D5eGDyvAhbZX8GtWdUsSvbtvqI@10.10.28.186:34533/d48baf5c-08fc-4546-a4ad-ecf4ab3ec9e6"
+    wsr = "capnp://OqCNeMMUaoPlSH5l6D5eGDyvAhbZX8GtWdUsSvbtvqI@10.10.28.186:34533/20d681a5-2b1f-480b-a32a-589f1c40d96c"
 
     if False:
-        writer = await con_man.try_connect(wsr, cast_as=fbp_capnp.Channel.Writer)
+        writer = (await con_man.try_connect(wsr)).cast_as(fbp_capnp.Channel.Writer)
         out_ip = fbp_capnp.IP.new_message(content="hello1")
         await writer.write(value=out_ip)
         print("wrote hello")
@@ -581,17 +595,17 @@ async def run_channel():
         #writer.write(value="hello4").wait()
         #return
 
-        reader = await con_man.try_connect(rsr, cast_as=fbp_capnp.Channel.Reader)
-        msg = (await reader.read()).value.as_struct(fbp_capnp.IP)
-        print("read", msg.content.as_text())
-        #return
+    reader = (await con_man.try_connect(rsr)).cast_as(fbp_capnp.Channel.Reader)
+    msg = (await reader.read()).value.as_struct(common_capnp.Pair)
+    print("read", msg.content.as_text())
+    return
 
-        for _ in range(100):
-            await writer.write(value="hello")
-            print("wrote hello")
-            msg = await reader.read()
-            print("read", msg.value.as_text())
-        return
+    for _ in range(100):
+        await writer.write(value="hello")
+        print("wrote hello")
+        msg = await reader.read()
+        print("read", msg.value.as_text())
+    return
 
     # test channel
     # channel_sr = "capnp://insecure@10.10.24.210:37505/6c25454e-4ef9-4659-9c94-341bdd827df5"
@@ -637,35 +651,34 @@ def run_some():
     print(ps)
 
 
-def run_resolver():
+async def run_resolver():
     con_man = common.ConnectionManager()
 
-    sr = "capnp://lpfbBZeidvkWtZXsnOO6PgNXXXHrNZi-f8yBluWkIaQ@10.10.24.250:39345"
-    resolver = con_man.try_connect(sr, cast_as=persistence_capnp.HostPortResolver)
-    hp = resolver.resolve("resolver").wait()
-    print(hp)
+    sr = "capnp://p4ZzfwnfeQSO5EXnl6iyXWfcUqbjph4BMK32jdKL1sg@10.10.28.186:45649"
+    resolver = await con_man.try_connect(sr, cast_as=persistence_capnp.HostPortResolver)
+    print(await resolver.resolve("dwd_climate_data_bonn"))
+    print(await resolver.resolve("85hQKPJ2_E3CCJUYxWuxvnepr_9Y5RtVSmDgIZYU3E4="))
 
-def run_resolver_registrar():
+async def run_resolver_registrar():
     con_man = common.ConnectionManager()
 
-    sr = "capnp://lpfbBZeidvkWtZXsnOO6PgNXXXHrNZi-f8yBluWkIaQ@10.10.24.250:39345/OGE1NjlmYWEtMDE5ZS00OTVhLWJhMGMtODNiNDJiZjZmZWZk"
-    registrar = con_man.try_connect(sr, cast_as=persistence_capnp.HostPortResolver.Registrar)
-    hb = registrar.register(base64VatId="lpfbBZeidvkWtZXsnOO6PgNXXXHrNZi-f8yBluWkIaQ", host="10.10.24.250", port=39345,
-                            alias="resolver").wait()
+    service_sr = "capnp://g3Ddt322puAx6eQYT99XbDi5zKiLOWzCaI0XmusDF0c=@10.10.28.186:39571/3a09e38b-901a-4967-9a03-dca85a77ad8d"
+
+    sr = "capnp://s5cfNzSxcOMs59wqMeDspPCKGfi2UruYgOZuj0CKmPI@10.10.28.186:43897/4c3b9caa-8dcb-4c20-bcfb-53d94c346116"
+    registrar = await con_man.try_connect(sr, cast_as=persistence_capnp.HostPortResolver.Registrar)
+    hb = await registrar.register(base64VatId="g3Ddt322puAx6eQYT99XbDi5zKiLOWzCaI0XmusDF0c=", host="10.10.28.186",
+                                  port=39571, alias="timeseries")
     print("let heart beat every", hb.secsHeartbeatInterval, "seconds")
-    def beat():
-        while True:
-            print("beat")
-            hb.heartbeat.beat().wait()
-            time.sleep(5)
-
-    return Thread(target=beat).start()
+    while True:
+        print("beat")
+        await hb.heartbeat.beat()
+        time.sleep(5)
 
 async def test_components_service():
     con_man = common.ConnectionManager()
 
-    service = await con_man.try_connect("capnp://10.10.28.250:9988/local_components",
-                                        cast_as=reg_capnp.Registry)
+    sr = "capnp://rRYUEArq3kAxlIDwWCyoDJVnjW6pjLrRf1hhqkeijgQ=@capnp-gateway.staging.dakispro.de:443/aa945938-367e-42fa-85c6-507d0d2e303b"
+    service = (await con_man.try_connect(sr)).cast_as(reg_capnp.Registry)
     print(await service.supportedCategories())
     for e in (await service.entries()).entries:
         ih = e.ref.cast_as(common_capnp.IdentifiableHolder)
@@ -676,12 +689,52 @@ async def test_components_service():
 
 async def test_channel_starter_service():
     con_man = common.ConnectionManager()
-    service = await con_man.try_connect("capnp://10.10.28.250:9989/channel_starter",
-                                        cast_as=fbp_capnp.StartChannelsService)
+    sr = "capnp://p6KV9OijxIQxJd7tiqVmVIZ1iKKFJ5OW_GOuAmuTY2Q=@capnp-gateway.staging.dakispro.de:443/f27709f7-7965-4523-8533-99e0c8cd1b1c"
+    service = (await con_man.try_connect(sr)).cast_as(fbp_capnp.StartChannelsService)
     print(await service.info())
-    infos = (await service.create(noOfChannels=2, readerSrts=["a", "b"])).startupInfos
+    #infos = (await service.create(noOfChannels=1, readerSrts=["a", "b"])).startupInfos
+    req = service.start_request()
+    req.name = "bla"
+    res = await req.send()
+    print(res.startupInfos)
+    #infos = (await req.send()).startupInfos
+    #infos = (await service.start(name="bla")).startupInfos
+    print("hello")
+
+async def test_channels_vat():
+    con_man = common.ConnectionManager()
+    channel = await con_man.try_connect("capnp://dc4qYbL9f3LslFYD-7q4lHVzZS8YjBNRrIoW0L6qX0U@localhost:36217/7ad5b58f-f739-4cbf-bc5e-540e5f38f7c2",
+                                        cast_as=fbp_capnp.Channel)
+    print(await channel.info())
+    await channel.close(False)
+
+async def test_timer():
+    async def work():
+        await asyncio.sleep(2)
+        print("work:", datetime.now())
+    async def periodic(interval_sec, coro_name, *args, **kwargs):
+        # loop forever
+        while True:
+            # wait an interval
+            await asyncio.sleep(interval_sec)
+            # await the target
+            await coro_name(*args, **kwargs)
+
+    return asyncio.create_task(periodic(5.0, work))
+
+async def test_gateway():
+    con_man = common.ConnectionManager()
+    sr = "capnp://capnp-gateway.staging.dakispro.de"
+    #sr = "capnp://u_iLE-druDKBiv44fY4YQUF4m3hgR4mE_7M94iO_T6w@10.10.28.186:7777"
+    try:
+        gateway = (await con_man.try_connect(sr)).cast_as(persistence_capnp.Gateway)
+    except Exception as e:
+        print(e)
+    print(gateway)
+    print(await gateway.info())
+    #infos = (await service.create(noOfChannels=1, readerSrts=["a", "b"])).startupInfos
     #infos = (await service.create(name="bla")).startupInfos
-    print(infos)
+    #print(infos)
 
 
 async def main():
@@ -691,22 +744,44 @@ async def main():
     }
     common.update_config(config, sys.argv, print_config=True, allow_new_keys=True)
 
+    #x = common.sturdy_ref_str(bytes([1,2,3,4,4,5]), "localhost", 12233, "srtoken")
+
     await test_channel_starter_service()
+    #await run_channel()
+
+    #await test_new_fbp_component_style()
+    #await test_channel_starter_service()
     #await test_components_service()
+    #await test_gateway()
     return
+
+    #print("starting timer:", datetime.now())
+    #t = await test_timer()
+    #print(t)
+    #print("sleeping now 60 secs", datetime.now())
+    #await asyncio.sleep(60)
+    #print("finished")
+    #return
+
+    #await run_resolver()
+
+    #await run_storage_service()
+
+    #await run_channel()
+    #await test_channels_vat()
+    #await test_channel_starter_service()
+    #await test_components_service()
+    #return
 
     #await run_monica()
 
-    #run_resolver()
-    #hb_thread = run_resolver_registrar()
 
-    #while True:
-    #    print(".", end="")
-    #    time.sleep(1)
+
 
     #check_climate_dataset_service()
 
-    #run_climate_service()
+    #await run_climate_service()
+    #return
 
     #await run_soil_service()
 
@@ -722,11 +797,11 @@ async def main():
 
     #await run_climate_service()
 
-    await run_registry()
+    #await run_registry()
 
     # run_cross_domain_registry()
 
-    # run_storage_service()
+
 
     # run_storage_container()
 
